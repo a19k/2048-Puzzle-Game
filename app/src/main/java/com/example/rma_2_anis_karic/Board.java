@@ -19,7 +19,16 @@ public class Board {
     public void clear(){
         for (int i = 0; i < dimension; i++)
             for (int j = 0; j < dimension; j++)
-                this.grid[i][j] = 0;
+                grid[i][j] = 0;
+    }
+
+    private void addNewTiles(){
+        int emptyTileCounter = 0;
+        for(int i = 0; i < dimension; i++)
+            for (int j = 0; j < dimension; j++)
+                if (grid[i][j] == 0) emptyTileCounter++;
+
+        int tileOfChoice = (int) ((Math.random() * 100));
     }
 
     @Override
