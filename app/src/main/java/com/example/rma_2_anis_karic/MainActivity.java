@@ -17,8 +17,6 @@ import androidx.gridlayout.widget.GridLayout;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         setUpViewReferences();
+
         manager = new ViewModelProvider(this).get(Manager.class);
 
         manager.getGrid().observe(this, new Observer<List<List<Integer>>>() {
@@ -90,10 +89,8 @@ public class MainActivity extends AppCompatActivity {
 
         LayoutInflater inflater = LayoutInflater.from(this);
 
-        int dimension = grid.size();
-
         //in each row
-        for (int row = 0; row < dimension; row++) {
+        for (int row = 0; row < 4; row++) {
 
             //initialize a row for the gridTiles
             //gridTiles saves references to TextViews in tiles that are about to be created
@@ -101,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
             gridTiles.add(gridTilesRow);
 
             //for each element/column
-            for (int col = 0; col < dimension; col++) {
+            for (int col = 0; col < 4; col++) {
 
                 //inflate a new tile
                 View newTile = inflater.inflate(R.layout.tile,viewGrid,false);
@@ -153,9 +150,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //in each row
-        for (int row = 0; row < grid.size(); row++) {
+        for (int row = 0; row < 4; row++) {
             //for each element/column
-            for (int col = 0; col < grid.get(0).size(); col++) {
+            for (int col = 0; col < 4; col++) {
                 int tileValue = grid.get(row).get(col);
                 TextView tileText = gridTiles.get(row).get(col);
 

@@ -9,7 +9,7 @@ import java.util.List;
 
 public class Manager extends ViewModel {
 
-    private final Board board = new Board(4);
+    private final Board board = new Board();
 
     private final MutableLiveData<List<List<Integer>>> liveGrid = new MutableLiveData<>();
     private final MutableLiveData<Integer> liveScore = new MutableLiveData<>();
@@ -23,6 +23,21 @@ public class Manager extends ViewModel {
         board.clear();
         board.addNewTiles();
         board.addNewTiles();
+        board.addNewTiles();
+        board.addNewTiles();
+        board.addNewTiles();
+        board.addNewTiles();
+        board.addNewTiles();
+        board.addNewTiles();
+        board.addNewTiles();
+        board.addNewTiles();
+        board.addNewTiles();
+        board.addNewTiles();
+        board.addNewTiles();
+        board.addNewTiles();
+        board.addNewTiles();
+        board.addNewTiles();
+        board.moveUp();
         liveGrid.setValue(convert2DArrayTo2DList(board.getGrid()));
         liveScore.setValue(board.getScore());
         liveHiScore.setValue(board.getHiScore());
@@ -44,9 +59,9 @@ public class Manager extends ViewModel {
     private List<List<Integer>> convert2DArrayTo2DList(int [][] grid){
         List<List<Integer>> convertedGrid = new ArrayList<>();
 
-        for (int i = 0; i < board.getDimension(); i++) {
+        for (int i = 0; i < 4; i++) {
             List<Integer> row = new ArrayList<>();
-            for (int j = 0; j < board.getDimension(); j++) {
+            for (int j = 0; j < 4; j++) {
                 row.add(grid[i][j]);
             }
             convertedGrid.add(row);

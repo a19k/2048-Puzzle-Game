@@ -14,7 +14,7 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginTop="50dp"
-        android:backgroundTint="#7C4DFF"
+        android:backgroundTint="@color/primaryPurple"
         android:elevation="10dp"
         android:foreground="@android:drawable/ic_menu_rotate"
         android:foregroundGravity="center"
@@ -31,7 +31,7 @@
 
     <TextView
         android:id="@+id/hiscore"
-        android:layout_width="7dp"
+        android:layout_width="wrap_content"
         android:layout_height="27dp"
         android:textColor="#651FFF"
         app:layout_constraintBottom_toTopOf="@+id/grid"
@@ -43,10 +43,10 @@
 
     <TextView
         android:id="@+id/hiscoreLabel"
-        android:layout_width="87dp"
+        android:layout_width="wrap_content"
         android:layout_height="25dp"
         android:text="High score"
-        android:textColor="#651FFF"
+        android:textColor="@color/primaryPurple"
         android:textSize="16sp"
         app:layout_constraintBottom_toTopOf="@+id/grid"
         app:layout_constraintEnd_toEndOf="parent"
@@ -59,7 +59,7 @@
         android:id="@+id/grid"
         android:layout_width="380dp"
         android:layout_height="380dp"
-        android:background="#7C4DFF"
+        android:background="@color/primaryPurple"
         android:elevation="2dp"
         android:outlineProvider="background"
         android:padding="6dp"
@@ -74,7 +74,7 @@
 
     <Button
         android:id="@+id/gameTitle"
-        android:layout_width="160dp"
+        android:layout_width="wrap_content"
         android:layout_height="59dp"
         android:backgroundTint="#EDE7F6"
         android:elevation="3dp"
@@ -85,7 +85,7 @@
         android:text="2048"
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Display2"
-        android:textColor="#651FFF"
+        android:textColor="@color/primaryPurple"
         android:textStyle="bold"
         app:cornerRadius="3dp"
         app:layout_constraintBottom_toTopOf="@+id/grid"
@@ -97,10 +97,10 @@
 
     <TextView
         android:id="@+id/scoreLabel"
-        android:layout_width="60dp"
+        android:layout_width="wrap_content"
         android:layout_height="27dp"
         android:text="Score"
-        android:textColor="#651FFF"
+        android:textColor="@color/primaryPurple"
         android:textSize="16sp"
         app:layout_constraintBottom_toTopOf="@+id/grid"
         app:layout_constraintEnd_toEndOf="parent"
@@ -111,7 +111,7 @@
 
     <TextView
         android:id="@+id/score"
-        android:layout_width="7dp"
+        android:layout_width="wrap_content"
         android:layout_height="27dp"
         android:textColor="#651FFF"
         app:layout_constraintBottom_toTopOf="@+id/grid"
@@ -136,7 +136,7 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginTop="50dp"
-        android:backgroundTint="#7C4DFF"
+        android:backgroundTint="@color/primaryPurple"
         android:elevation="10dp"
         android:foreground="@android:drawable/ic_menu_revert"
         android:foregroundGravity="center"
@@ -156,7 +156,7 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginTop="24dp"
-        android:backgroundTint="#7C4DFF"
+        android:backgroundTint="@color/primaryPurple"
         android:foreground="@android:drawable/ic_menu_preferences"
         android:foregroundGravity="center"
         android:insetTop="0dp"
