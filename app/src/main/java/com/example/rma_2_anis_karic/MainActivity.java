@@ -3,7 +3,9 @@ package com.example.rma_2_anis_karic;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -31,6 +33,8 @@ public class MainActivity extends AppCompatActivity {
 
     private Manager manager;
 
+    private GestureDetector gestureDetector;
+
     private List<List<TextView>> gridTiles;
 
     private static final String TAG = "grid/gridTiles";
@@ -47,10 +51,31 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+
         setUpViewReferences();
 
         manager = new ViewModelProvider(this).get(Manager.class);
 
+        gestureDetector = new GestureDetector(this, new SwipeListener(){
+            @Override
+            protected void onSwipeRight(){
+                manager.swipeRightHandler();
+            }
+            @Override
+            protected void onSwipeLeft(){
+                manager.swipeLeftHandler();
+            }
+            @Override
+            protected void onSwipeUp(){
+                manager.swipeUpHandler();
+            }
+            @Override
+            protected void onSwipeDown(){
+                manager.swipeDownHandler();
+            }
+        });
+
+        //OBSERVERS
         manager.getGrid().observe(this, new Observer<List<List<Integer>>>() {
             @Override
             public void onChanged(List<List<Integer>> grid) {
@@ -72,9 +97,33 @@ public class MainActivity extends AppCompatActivity {
                 hiScoreDisplay.setText(String.valueOf(newValue));
             }
         });
+
+        //LISTENERS
+
+        resetButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                manager.newGame();
+            }
+        });
+
+        undoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                manager.undo();
+            }
+        });
+
+
+        viewGrid.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return gestureDetector.onTouchEvent(event);
+            }
+        });
     }
 
-    private void setUpViewReferences(){
+    private void setUpViewReferences() {
         scoreDisplay = (TextView) findViewById(R.id.score);
         hiScoreDisplay = (TextView) findViewById(R.id.hiscore);
         undoButton = (Button) findViewById(R.id.undo);
@@ -84,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void initBoard(List<List<Integer>> grid){
+    private void initBoard(List<List<Integer>> grid) {
         gridTiles = new ArrayList<>();
 
         LayoutInflater inflater = LayoutInflater.from(this);
@@ -101,16 +150,15 @@ public class MainActivity extends AppCompatActivity {
             for (int col = 0; col < 4; col++) {
 
                 //inflate a new tile
-                View newTile = inflater.inflate(R.layout.tile,viewGrid,false);
+                View newTile = inflater.inflate(R.layout.tile, viewGrid, false);
                 //and take a reference to its TextView
                 TextView tileText = newTile.findViewById(R.id.tileText);
 
                 //assign value and color to new tile
                 if (grid.get(row).get(col) != 0) {
                     tileText.setText(String.valueOf(grid.get(row).get(col)));
-                    setTileColor(tileText,grid.get(row).get(col));
-                }
-                else {
+                    setTileColor(tileText, grid.get(row).get(col));
+                } else {
                     tileText.setText("");
                     tileText.setBackgroundColor(Color.WHITE);
                 }
@@ -123,8 +171,8 @@ public class MainActivity extends AppCompatActivity {
                 //set margins
                 int dpValue = 5; // margin in dips
                 float d = this.getResources().getDisplayMetrics().density;
-                int margin = (int)(dpValue * d); // margin in pixels
-                parameters.setMargins(margin,margin,margin,margin);
+                int margin = (int) (dpValue * d); // margin in pixels
+                parameters.setMargins(margin, margin, margin, margin);
 
                 //apply position and margins
                 newTile.setLayoutParams(parameters);
@@ -137,13 +185,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void updateGrid(List<List<Integer>> grid){
+    private void updateGrid(List<List<Integer>> grid) {
 
-        if(gridTiles == null || gridTiles.size() != grid.size() || gridTiles.get(0).size() != grid.get(0).size()){
-            if (gridTiles == null) Log.e(TAG,"gridTiles is empty.");
+        if (gridTiles == null || gridTiles.size() != grid.size() || gridTiles.get(0).size() != grid.get(0).size()) {
+            if (gridTiles == null) Log.e(TAG, "gridTiles is empty.");
 
-            Log.d(TAG,"gridTiles.size() : " + String.valueOf(gridTiles.size()) + "  ,   grid.size() : " + grid.size());
-            Log.d(TAG,"gridTiles.size() : " + String.valueOf(gridTiles.get(0).size()) + "  ,   grid.size() : " + grid.get(0).size());
+            Log.d(TAG, "gridTiles.size() : " + String.valueOf(gridTiles.size()) + "  ,   grid.size() : " + grid.size());
+            Log.d(TAG, "gridTiles.size() : " + String.valueOf(gridTiles.get(0).size()) + "  ,   grid.size() : " + grid.get(0).size());
 
             initBoard(grid);
             return;
@@ -162,18 +210,21 @@ public class MainActivity extends AppCompatActivity {
                     tileText.setText(String.valueOf(tileValue));
                 }
 
-                setTileColor(tileText,tileValue);
+                setTileColor(tileText, tileValue);
 
             }
         }
     }
 
-    private void setTileColor(TextView tileText, int tileValue){
-        switch (tileValue){
-            case 0: tileText.setBackgroundColor(Color.WHITE);
-            break;
-            case 2: tileText.setBackgroundColor(Color.parseColor("#0288D1"));
-            break;
+    private void setTileColor(TextView tileText, int tileValue) {
+        switch (tileValue) {
+            case 0:
+                tileText.setBackgroundColor(Color.WHITE);
+                break;
+            case 2:
+                tileText.setBackgroundColor(Color.parseColor("#0288D1"));
+                break;
         }
     }
+
 }

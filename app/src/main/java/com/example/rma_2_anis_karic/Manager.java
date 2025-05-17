@@ -1,5 +1,6 @@
 package com.example.rma_2_anis_karic;
 
+import androidx.constraintlayout.motion.widget.OnSwipe;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -19,34 +20,7 @@ public class Manager extends ViewModel {
         newGame();
     }
 
-    private void newGame(){
-        board.clear();
-        board.addNewTiles();
-        board.addNewTiles();
-        board.addNewTiles();
-        board.addNewTiles();
-        board.addNewTiles();
-        board.addNewTiles();
-        board.addNewTiles();
-        board.addNewTiles();
-        board.addNewTiles();
-        board.addNewTiles();
-        board.addNewTiles();
-        board.addNewTiles();
-        board.addNewTiles();
-        board.addNewTiles();
-        board.addNewTiles();
-        board.addNewTiles();
-        board.moveUp();
-        liveGrid.setValue(convert2DArrayTo2DList(board.getGrid()));
-        liveScore.setValue(board.getScore());
-        liveHiScore.setValue(board.getHiScore());
-    }
-
-
-    public LiveData<List<List<Integer>>> getGrid(){
-        return liveGrid;
-    }
+    public LiveData<List<List<Integer>>> getGrid() { return liveGrid; }
 
     public LiveData<Integer> getScore() {
         return liveScore;
@@ -56,7 +30,35 @@ public class Manager extends ViewModel {
         return liveHiScore;
     }
 
-    private List<List<Integer>> convert2DArrayTo2DList(int [][] grid){
+    public void newGame() {
+        board.clear();
+        board.addNewTiles();
+        board.addNewTiles();
+
+        liveGrid.setValue(convert2DArrayTo2DList(board.getGrid()));
+        liveScore.setValue(board.getScore());
+        liveHiScore.setValue(board.getHiScore());
+    }
+
+    public int undo() {
+        return board.loadSaveState();
+    }
+
+    public void swipeRightHandler(){
+        board.moveRight();
+    }
+    public void swipeLeftHandler(){
+        board.moveLeft();
+    }
+    public void swipeUpHandler(){
+        board.moveUp();
+    }
+    public void swipeDownHandler(){
+        board.moveDown();
+    }
+
+
+    private List<List<Integer>> convert2DArrayTo2DList(int[][] grid) {
         List<List<Integer>> convertedGrid = new ArrayList<>();
 
         for (int i = 0; i < 4; i++) {
@@ -69,6 +71,5 @@ public class Manager extends ViewModel {
 
         return convertedGrid;
     }
-
 
 }
