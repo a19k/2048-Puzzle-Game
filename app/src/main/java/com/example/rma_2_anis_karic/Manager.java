@@ -1,6 +1,5 @@
 package com.example.rma_2_anis_karic;
 
-import androidx.constraintlayout.motion.widget.OnSwipe;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -40,21 +39,40 @@ public class Manager extends ViewModel {
         liveHiScore.setValue(board.getHiScore());
     }
 
-    public int undo() {
-        return board.loadSaveState();
+    public void undo() {
+        board.loadSaveState();
+        liveGrid.setValue(convert2DArrayTo2DList(board.getGrid()));
+        liveScore.setValue(board.getScore());
+        liveHiScore.setValue(board.getHiScore());
     }
 
     public void swipeRightHandler(){
         board.moveRight();
+        board.addNewTiles();
+        liveGrid.setValue(convert2DArrayTo2DList(board.getGrid()));
+        liveScore.setValue(board.getScore());
+        liveHiScore.setValue(board.getHiScore());
     }
     public void swipeLeftHandler(){
         board.moveLeft();
+        board.addNewTiles();
+        liveGrid.setValue(convert2DArrayTo2DList(board.getGrid()));
+        liveScore.setValue(board.getScore());
+        liveHiScore.setValue(board.getHiScore());
     }
     public void swipeUpHandler(){
         board.moveUp();
+        board.addNewTiles();
+        liveGrid.setValue(convert2DArrayTo2DList(board.getGrid()));
+        liveScore.setValue(board.getScore());
+        liveHiScore.setValue(board.getHiScore());
     }
     public void swipeDownHandler(){
         board.moveDown();
+        board.addNewTiles();
+        liveGrid.setValue(convert2DArrayTo2DList(board.getGrid()));
+        liveScore.setValue(board.getScore());
+        liveHiScore.setValue(board.getHiScore());
     }
 
 

@@ -1,8 +1,8 @@
 package com.example.rma_2_anis_karic;
 
+import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "grid/gridTiles";
 
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,7 +80,6 @@ public class MainActivity extends AppCompatActivity {
         manager.getGrid().observe(this, new Observer<List<List<Integer>>>() {
             @Override
             public void onChanged(List<List<Integer>> grid) {
-                initBoard(grid);
                 updateGrid(grid);
             }
         });
@@ -188,11 +188,6 @@ public class MainActivity extends AppCompatActivity {
     private void updateGrid(List<List<Integer>> grid) {
 
         if (gridTiles == null || gridTiles.size() != grid.size() || gridTiles.get(0).size() != grid.get(0).size()) {
-            if (gridTiles == null) Log.e(TAG, "gridTiles is empty.");
-
-            Log.d(TAG, "gridTiles.size() : " + String.valueOf(gridTiles.size()) + "  ,   grid.size() : " + grid.size());
-            Log.d(TAG, "gridTiles.size() : " + String.valueOf(gridTiles.get(0).size()) + "  ,   grid.size() : " + grid.get(0).size());
-
             initBoard(grid);
             return;
         }
@@ -221,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
             case 0:
                 tileText.setBackgroundColor(Color.WHITE);
                 break;
-            case 2:
+            default:
                 tileText.setBackgroundColor(Color.parseColor("#0288D1"));
                 break;
         }

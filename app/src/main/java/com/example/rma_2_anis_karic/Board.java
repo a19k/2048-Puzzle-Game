@@ -10,7 +10,11 @@ public class Board {
     private final int[][] grid;
     private int score;
     private int hiScore = 0;
-    private int[][] saveState;
+
+    private final int[][] saveState = new int[4][4];
+    private int scoreSave;
+    private int hiScoreSave;
+
     private static final String TAG = "BOARD";
 
     public Board() {
@@ -18,22 +22,24 @@ public class Board {
         this.score = 0;
     }
 
-    public int[][] getSaveState() {
-        return saveState;
+    private void setSaveState() {
+        scoreSave = score;
+        hiScoreSave = hiScore;
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                saveState[i][j] = grid[i][j];
+            }
+        }
     }
 
-    private void setSaveState(int[][] saveState) {
-        this.saveState = saveState;
-    }
-
-    public int loadSaveState() {
-        if (saveState != null) {
-            for (int i = 0; i < 4; i++)
-                for (int j = 0; j < 4; j++)
-                    grid[i][j] = saveState[i][j];
-
-            return 0;
-        } else return 1;
+    public void loadSaveState() {
+        score = scoreSave;
+        hiScore = hiScoreSave;
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                grid[i][j] = saveState[i][j];
+            }
+        }
     }
 
     public int[][] getGrid() {
@@ -94,6 +100,8 @@ public class Board {
     }
 
     public void moveLeft() {
+        setSaveState();
+
         //for each row
         for (int rowIndex = 0; rowIndex < 4; rowIndex++) {
 
@@ -112,14 +120,12 @@ public class Board {
             //apply the change
             grid[rowIndex] = rowValues;
 
-
-            setSaveState(grid);
-
             Log.d(TAG, Arrays.toString(grid[rowIndex]));
         }
     }
 
     public void moveRight() {
+        setSaveState();
         //for each row
         for (int rowIndex = 0; rowIndex < 4; rowIndex++) {
 
@@ -161,14 +167,13 @@ public class Board {
             //applies the change
             grid[rowIndex] = rowValues;
 
-
-            setSaveState(grid);
-
             Log.d(TAG, Arrays.toString(grid[rowIndex]));
         }
     }
 
     public void moveUp() {
+        setSaveState();
+
         //for each row
         for (int columnIndex = 0; columnIndex < 4; columnIndex++) {
 
@@ -191,12 +196,12 @@ public class Board {
 
         }
 
-        setSaveState(grid);
-
         Log.d(TAG, toString());
     }
 
     public void moveDown() {
+        setSaveState();
+
         //for each row
         for (int columnIndex = 0; columnIndex < 4; columnIndex++) {
 
@@ -232,8 +237,6 @@ public class Board {
             //applies the change
             setColumn(columnIndex, columnValues);
         }
-
-        setSaveState(grid);
 
         Log.d(TAG, toString());
     }
