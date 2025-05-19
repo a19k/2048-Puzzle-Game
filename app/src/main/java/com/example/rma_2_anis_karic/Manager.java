@@ -1,5 +1,7 @@
 package com.example.rma_2_anis_karic;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -11,7 +13,7 @@ public class Manager extends ViewModel {
 
     private final Board board = new Board();
 
-    private final MutableLiveData<List<List<Integer>>> liveGrid = new MutableLiveData<>();
+    private final MutableLiveData<List<Tile>> liveTiles = new MutableLiveData<>();
     private final MutableLiveData<Integer> liveScore = new MutableLiveData<>();
     private final MutableLiveData<Integer> liveHiScore = new MutableLiveData<>();
 
@@ -20,8 +22,8 @@ public class Manager extends ViewModel {
     }//CONSTRUCTOR
 
     //LIVEDATA GET
-    public LiveData<List<List<Integer>>> getGrid() {
-        return liveGrid;
+    public LiveData<List<Tile>> getTiles() {
+        return liveTiles;
     }
     public LiveData<Integer> getScore() {
         return liveScore;
@@ -36,14 +38,14 @@ public class Manager extends ViewModel {
         board.addNewTiles();
         board.addNewTiles();
 
-        liveGrid.setValue(convert2DArrayTo2DList(board.getGrid()));
+        updateTiles();
         liveScore.setValue(board.getScore());
         liveHiScore.setValue(board.getHiScore());
     }
     public void undo() {
         board.loadSaveState();
 
-        liveGrid.setValue(convert2DArrayTo2DList(board.getGrid()));
+        updateTiles();
         liveScore.setValue(board.getScore());
         liveHiScore.setValue(board.getHiScore());
     }
@@ -56,7 +58,7 @@ public class Manager extends ViewModel {
         if (board.gridChanged(previousGridImage))
             board.addNewTiles();
 
-        liveGrid.setValue(convert2DArrayTo2DList(board.getGrid()));
+        updateTiles();
         liveScore.setValue(board.getScore());
         liveHiScore.setValue(board.getHiScore());
     }
@@ -67,7 +69,7 @@ public class Manager extends ViewModel {
         if (board.gridChanged(previousGridImage))
             board.addNewTiles();
 
-        liveGrid.setValue(convert2DArrayTo2DList(board.getGrid()));
+        updateTiles();
         liveScore.setValue(board.getScore());
         liveHiScore.setValue(board.getHiScore());
     }
@@ -78,7 +80,7 @@ public class Manager extends ViewModel {
         if (board.gridChanged(previousGridImage))
             board.addNewTiles();
 
-        liveGrid.setValue(convert2DArrayTo2DList(board.getGrid()));
+        updateTiles();
         liveScore.setValue(board.getScore());
         liveHiScore.setValue(board.getHiScore());
     }
@@ -89,24 +91,28 @@ public class Manager extends ViewModel {
         if (board.gridChanged(previousGridImage))
             board.addNewTiles();
 
-        liveGrid.setValue(convert2DArrayTo2DList(board.getGrid()));
+        updateTiles();
         liveScore.setValue(board.getScore());
         liveHiScore.setValue(board.getHiScore());
     }
 
     //DATA STRUCTURE CONVERTER
-    private List<List<Integer>> convert2DArrayTo2DList(int[][] grid) {
-        List<List<Integer>> convertedGrid = new ArrayList<>();
+    private void updateTiles() {
+        int[][] grid = board.getGrid();
+        List<Tile> tiles = new ArrayList<>();
 
-        for (int i = 0; i < 4; i++) {
-            List<Integer> row = new ArrayList<>();
-            for (int j = 0; j < 4; j++) {
-                row.add(grid[i][j]);
+        for (int row = 0; row < 4; row++) {
+            for (int col = 0; col < 4; col++) {
+                    tiles.add(new Tile(row, col,grid[row][col]));
             }
-            convertedGrid.add(row);
         }
-
-        return convertedGrid;
+        Log.d("GameViewModel", "Number of TileUiModels created: " + tiles.size());
+        if (!tiles.isEmpty()) {
+            Log.d("GameViewModel", "First TileUiModel - Value: " + tiles.get(0).getValue() +
+                    ", Row: " + tiles.get(0).getRow() +
+                    ", Col: " + tiles.get(0).getCol());
+        }
+        liveTiles.setValue(tiles);
     }
 
 }

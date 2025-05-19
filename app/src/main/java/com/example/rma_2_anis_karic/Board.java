@@ -40,11 +40,11 @@ public class Board {
     }
 
     //SAVESTATE
-    private void setSaveState(int[][] previousGridImage) {
+    private void setSaveState(int[][] previousGridImage,int previousScore,int previousHiScore) {
         if (!gridChanged(previousGridImage)) return;
 
-        scoreSave = score;
-        hiScoreSave = hiScore;
+        scoreSave = previousScore;
+        hiScoreSave = previousHiScore;
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
                 saveState[i][j] = previousGridImage[i][j];
@@ -107,6 +107,8 @@ public class Board {
     //MOVE
     public void moveLeft() {
         int[][] gridImage = getGridImage();
+        int score = getScore();
+        int hiscore = getHiScore();
 
         //for each row
         for (int rowIndex = 0; rowIndex < 4; rowIndex++) {
@@ -128,10 +130,13 @@ public class Board {
 
             Log.d(TAG, Arrays.toString(grid[rowIndex]));
         }
-        setSaveState(gridImage);
+        setSaveState(gridImage,score,hiScore);
     }
     public void moveRight() {
         int[][] gridImage = getGridImage();
+        int score = getScore();
+        int hiscore = getHiScore();
+
         //for each row
         for (int rowIndex = 0; rowIndex < 4; rowIndex++) {
 
@@ -175,10 +180,12 @@ public class Board {
 
             Log.d(TAG, Arrays.toString(grid[rowIndex]));
         }
-        setSaveState(gridImage);
+        setSaveState(gridImage,score,hiScore);
     }
     public void moveUp() {
         int[][] gridImage = getGridImage();
+        int score = getScore();
+        int hiscore = getHiScore();
 
         //for each row
         for (int columnIndex = 0; columnIndex < 4; columnIndex++) {
@@ -201,12 +208,14 @@ public class Board {
             setColumn(columnIndex, columnValues);
 
         }
-        setSaveState(gridImage);
+        setSaveState(gridImage,score,hiScore);
 
         Log.d(TAG, toString());
     }
     public void moveDown() {
         int[][] gridImage = getGridImage();
+        int score = getScore();
+        int hiscore = getHiScore();
 
         //for each row
         for (int columnIndex = 0; columnIndex < 4; columnIndex++) {
@@ -243,7 +252,7 @@ public class Board {
             //applies the change
             setColumn(columnIndex, columnValues);
         }
-        setSaveState(gridImage);
+        setSaveState(gridImage,score,hiScore);
 
         Log.d(TAG, toString());
     }

@@ -2,13 +2,13 @@ package com.example.rma_2_anis_karic;
 
 import java.util.Objects;
 
-public class tile {
+public class Tile {
 
     private int row;
     private int col;
     private int value;
 
-    public tile(int row, int col, int value) {
+    public Tile(int row, int col, int value) {
         this.row = row;
         this.col = col;
         this.value = value;
@@ -33,4 +33,15 @@ public class tile {
         this.value = value;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Tile tile = (Tile) o;
+        return row == tile.row && col == tile.col && value == tile.value;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(row, col, value);
+    }
 }
