@@ -3,10 +3,12 @@ package com.example.rma_2_anis_karic;
 import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.OvershootInterpolator;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -24,6 +26,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    //VIEW ELEMENTS
     private TextView scoreDisplay;
     private TextView hiScoreDisplay;
     private Button undoButton;
@@ -31,13 +34,12 @@ public class MainActivity extends AppCompatActivity {
     private Button settingsButton;
     private GridLayout viewGrid;
 
+    //UI LOGIC
     private Manager manager;
-
     private GestureDetector gestureDetector;
-
     private List<List<TextView>> gridTiles;
 
-    private static final String TAG = "grid/gridTiles";
+    private static final String TAG = "grid/gridTiles";//DEBUG TAG
 
 
     @SuppressLint("ClickableViewAccessibility")
@@ -55,42 +57,42 @@ public class MainActivity extends AppCompatActivity {
 
         setUpViewReferences();
 
+        //VIEWMODEL
         manager = new ViewModelProvider(this).get(Manager.class);
 
-        gestureDetector = new GestureDetector(this, new SwipeListener(){
+        //GESTURE DETECTOR
+        gestureDetector = new GestureDetector(this, new SwipeListener() {
             @Override
-            protected void onSwipeRight(){
+            protected void onSwipeRight() {
                 manager.swipeRightHandler();
             }
             @Override
-            protected void onSwipeLeft(){
+            protected void onSwipeLeft() {
                 manager.swipeLeftHandler();
             }
             @Override
-            protected void onSwipeUp(){
+            protected void onSwipeUp() {
                 manager.swipeUpHandler();
             }
             @Override
-            protected void onSwipeDown(){
+            protected void onSwipeDown() {
                 manager.swipeDownHandler();
             }
         });
 
-        //OBSERVERS
+        //LIVEDATA OBSERVERS
         manager.getGrid().observe(this, new Observer<List<List<Integer>>>() {
             @Override
             public void onChanged(List<List<Integer>> grid) {
                 updateGrid(grid);
             }
         });
-
         manager.getScore().observe(this, new Observer<Integer>() {
             @Override
             public void onChanged(Integer newValue) {
                 scoreDisplay.setText(String.valueOf(newValue));
             }
         });
-
         manager.getHiScore().observe(this, new Observer<Integer>() {
             @Override
             public void onChanged(Integer newValue) {
@@ -98,23 +100,20 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //LISTENERS
 
+        //VIEW LISTENERS
         resetButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 manager.newGame();
             }
         });
-
         undoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 manager.undo();
             }
         });
-
-
         viewGrid.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -123,6 +122,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    //SETUP
     private void setUpViewReferences() {
         scoreDisplay = (TextView) findViewById(R.id.score);
         hiScoreDisplay = (TextView) findViewById(R.id.hiscore);
@@ -132,7 +132,6 @@ public class MainActivity extends AppCompatActivity {
         viewGrid = (GridLayout) findViewById(R.id.grid);
 
     }
-
     private void initBoard(List<List<Integer>> grid) {
         gridTiles = new ArrayList<>();
 
@@ -185,6 +184,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //SETUP / UPDATE
     private void updateGrid(List<List<Integer>> grid) {
 
         if (gridTiles == null || gridTiles.size() != grid.size() || gridTiles.get(0).size() != grid.get(0).size()) {
@@ -206,20 +206,101 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 setTileColor(tileText, tileValue);
-
             }
         }
     }
 
+    //HELPER
     private void setTileColor(TextView tileText, int tileValue) {
         switch (tileValue) {
             case 0:
                 tileText.setBackgroundColor(Color.WHITE);
                 break;
-            default:
+            case 2:
+                tileText.setBackgroundColor(Color.parseColor("#388E3C"));
+                break;
+            case 4:
+                tileText.setBackgroundColor(Color.parseColor("#00796B"));
+                break;
+            case 8:
+                tileText.setBackgroundColor(Color.BLUE);
+                break;
+            case 16:
+                tileText.setBackgroundColor(Color.CYAN);
+                break;
+            case 32:
                 tileText.setBackgroundColor(Color.parseColor("#0288D1"));
                 break;
+            case 64:
+                tileText.setBackgroundColor(Color.MAGENTA);
+                break;
+            case 128:
+                tileText.setBackgroundColor(Color.LTGRAY);
+                break;
+            case 256:
+                tileText.setBackgroundColor(Color.parseColor("#C2185B"));
+                break;
+            case 512:
+                tileText.setBackgroundColor(Color.parseColor("#E64A19"));
+                break;
+            case 1024:
+                tileText.setBackgroundColor(Color.YELLOW);
+                break;
+            case 2048:
+                tileText.setBackgroundColor(Color.RED);
+                break;
+            default:
+                tileText.setBackgroundColor(Color.BLACK);
+                tileText.setTextColor(Color.RED);
         }
+    }
+    private List<List<Integer>> getState(){
+        List<List<Integer>> state = new ArrayList<>();
+        for (int i = 0; i < 4; i++) {
+            List<Integer> row = new ArrayList<>();
+            for (int j = 0; j < 4; j++) {
+                String item = gridTiles.get(i).get(j).getText().toString();
+                if (item.equals(""))
+                    row.add(0);
+                else
+                    row.add(Integer.parseInt(item));
+            }
+            state.add(row);
+        }
+        return state;
+    }
+
+    //ANIMATION
+    private void animateMove(TextView tile, float diffX, float diffY) {
+        tile.animate().
+                translationXBy(diffX).
+                translationYBy(diffY).
+                setDuration(150).
+                start();
+
+    }
+    private void animateAppearance(TextView tile){
+        tile.setScaleX(0f);
+        tile.setScaleY(0f);
+        tile.animate().
+                scaleX(1f).
+                scaleY(1f).
+                setDuration(150).
+                setInterpolator(new OvershootInterpolator()).
+                start();
+    }
+    private void animateMerge(TextView tile){
+        tile.animate().
+                scaleX(1.2f).
+                scaleY(1.2f).
+                setDuration(150).
+                withEndAction(new Runnable() {
+                    @Override
+                    public void run() {
+                        tile.animate().scaleX(1f).scaleY(1f).setDuration(150).start();
+                    }
+                })
+                .start();
     }
 
 }

@@ -17,18 +17,20 @@ public class Manager extends ViewModel {
 
     public Manager() {
         newGame();
+    }//CONSTRUCTOR
+
+    //LIVEDATA GET
+    public LiveData<List<List<Integer>>> getGrid() {
+        return liveGrid;
     }
-
-    public LiveData<List<List<Integer>>> getGrid() { return liveGrid; }
-
     public LiveData<Integer> getScore() {
         return liveScore;
     }
-
     public LiveData<Integer> getHiScore() {
         return liveHiScore;
     }
 
+    //VIEW BUTTON COMMANDS
     public void newGame() {
         board.clear();
         board.addNewTiles();
@@ -38,44 +40,61 @@ public class Manager extends ViewModel {
         liveScore.setValue(board.getScore());
         liveHiScore.setValue(board.getHiScore());
     }
-
     public void undo() {
         board.loadSaveState();
+
         liveGrid.setValue(convert2DArrayTo2DList(board.getGrid()));
         liveScore.setValue(board.getScore());
         liveHiScore.setValue(board.getHiScore());
     }
 
-    public void swipeRightHandler(){
+    //GRID SWIPE GESTURE HANDLERS
+    public void swipeRightHandler() {
+        int[][] previousGridImage = board.getGridImage();
         board.moveRight();
-        board.addNewTiles();
+
+        if (board.gridChanged(previousGridImage))
+            board.addNewTiles();
+
         liveGrid.setValue(convert2DArrayTo2DList(board.getGrid()));
         liveScore.setValue(board.getScore());
         liveHiScore.setValue(board.getHiScore());
     }
-    public void swipeLeftHandler(){
+    public void swipeLeftHandler() {
+        int[][] previousGridImage = board.getGridImage();
         board.moveLeft();
-        board.addNewTiles();
+
+        if (board.gridChanged(previousGridImage))
+            board.addNewTiles();
+
         liveGrid.setValue(convert2DArrayTo2DList(board.getGrid()));
         liveScore.setValue(board.getScore());
         liveHiScore.setValue(board.getHiScore());
     }
-    public void swipeUpHandler(){
+    public void swipeUpHandler() {
+        int[][] previousGridImage = board.getGridImage();
         board.moveUp();
-        board.addNewTiles();
+
+        if (board.gridChanged(previousGridImage))
+            board.addNewTiles();
+
         liveGrid.setValue(convert2DArrayTo2DList(board.getGrid()));
         liveScore.setValue(board.getScore());
         liveHiScore.setValue(board.getHiScore());
     }
-    public void swipeDownHandler(){
+    public void swipeDownHandler() {
+        int[][] previousGridImage = board.getGridImage();
         board.moveDown();
-        board.addNewTiles();
+
+        if (board.gridChanged(previousGridImage))
+            board.addNewTiles();
+
         liveGrid.setValue(convert2DArrayTo2DList(board.getGrid()));
         liveScore.setValue(board.getScore());
         liveHiScore.setValue(board.getHiScore());
     }
 
-
+    //DATA STRUCTURE CONVERTER
     private List<List<Integer>> convert2DArrayTo2DList(int[][] grid) {
         List<List<Integer>> convertedGrid = new ArrayList<>();
 

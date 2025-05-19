@@ -15,23 +15,45 @@ public class Board {
     private int scoreSave;
     private int hiScoreSave;
 
-    private static final String TAG = "BOARD";
+    private static final String TAG = "BOARD";//DEBUG TAG
 
     public Board() {
         this.grid = new int[4][4];
         this.score = 0;
+    }//CONSTRUCTOR
+
+    //GET
+    public int[][] getGrid() {
+        return grid;
+    }
+    public int getScore() {
+        return score;
+    }
+    public int getHiScore() {
+        return hiScore;
     }
 
-    private void setSaveState() {
+    //SCORE / HISCORE UPDATE
+    public void addScore(int score) {
+        this.score += score;
+        if (this.score > this.hiScore) this.hiScore = this.score;
+    }
+
+    //SAVESTATE
+    private void setSaveState(int[][] previousGridImage) {
+        if (!gridChanged(previousGridImage)) return;
+
         scoreSave = score;
         hiScoreSave = hiScore;
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
-                saveState[i][j] = grid[i][j];
+                saveState[i][j] = previousGridImage[i][j];
             }
         }
     }
-
+    public int[][] getSaveState() {
+        return saveState;
+    }
     public void loadSaveState() {
         score = scoreSave;
         hiScore = hiScoreSave;
@@ -42,23 +64,7 @@ public class Board {
         }
     }
 
-    public int[][] getGrid() {
-        return grid;
-    }
-
-    public int getScore() {
-        return score;
-    }
-
-    public void addScore(int score) {
-        this.score += score;
-        if (this.score > this.hiScore) this.hiScore = this.score;
-    }
-
-    public int getHiScore() {
-        return hiScore;
-    }
-
+    //VIEWMODEL COMMANDS
     public void clear() {
         for (int i = 0; i < 4; i++)
             for (int j = 0; j < 4; j++)
@@ -66,7 +72,6 @@ public class Board {
 
         score = 0;
     }
-
     public int addNewTiles() {
         //count empty tiles in grid
         int emptyTileCounter = 0;
@@ -99,8 +104,9 @@ public class Board {
         return 0;
     }
 
+    //MOVE
     public void moveLeft() {
-        setSaveState();
+        int[][] gridImage = getGridImage();
 
         //for each row
         for (int rowIndex = 0; rowIndex < 4; rowIndex++) {
@@ -122,10 +128,10 @@ public class Board {
 
             Log.d(TAG, Arrays.toString(grid[rowIndex]));
         }
+        setSaveState(gridImage);
     }
-
     public void moveRight() {
-        setSaveState();
+        int[][] gridImage = getGridImage();
         //for each row
         for (int rowIndex = 0; rowIndex < 4; rowIndex++) {
 
@@ -169,10 +175,10 @@ public class Board {
 
             Log.d(TAG, Arrays.toString(grid[rowIndex]));
         }
+        setSaveState(gridImage);
     }
-
     public void moveUp() {
-        setSaveState();
+        int[][] gridImage = getGridImage();
 
         //for each row
         for (int columnIndex = 0; columnIndex < 4; columnIndex++) {
@@ -195,12 +201,12 @@ public class Board {
             setColumn(columnIndex, columnValues);
 
         }
+        setSaveState(gridImage);
 
         Log.d(TAG, toString());
     }
-
     public void moveDown() {
-        setSaveState();
+        int[][] gridImage = getGridImage();
 
         //for each row
         for (int columnIndex = 0; columnIndex < 4; columnIndex++) {
@@ -237,20 +243,12 @@ public class Board {
             //applies the change
             setColumn(columnIndex, columnValues);
         }
+        setSaveState(gridImage);
 
         Log.d(TAG, toString());
     }
 
-    @Override
-    public String toString() {
-        StringBuilder fullGrid = new StringBuilder();
-
-        for (int i = 0; i < 4; i++)
-            fullGrid.append("Board{" + "grid=").append(Arrays.toString(grid[i])).append("}\n");
-
-        return fullGrid.toString();
-    }
-
+    //MOVE UTILITIES
     private int[] merge(int[] values) {
         for (int i = 1; i < values.length; i++) {
             if (values[i - 1] == values[i]) {
@@ -262,7 +260,6 @@ public class Board {
         }
         return values;
     }
-
     private int[] extend(int[] values) {
         int[] fullRow = new int[4];
 
@@ -274,7 +271,6 @@ public class Board {
 
         return fullRow;
     }
-
     private int[] reverse(int[] arr) {
         int[] result = new int[arr.length];
         for (int i = 0; i < arr.length; i++)
@@ -282,7 +278,6 @@ public class Board {
 
         return result;
     }
-
     private int[] filterEmpty(int[] values) {
         return Arrays.stream(values).filter(new IntPredicate() {
             @Override
@@ -291,7 +286,6 @@ public class Board {
             }
         }).toArray();
     }
-
     private int[] getColumn(int columnIndex) {
         int[] columnValues = new int[4];
         for (int rowIndex = 0; rowIndex < 4; rowIndex++) {
@@ -300,10 +294,38 @@ public class Board {
 
         return columnValues;
     }
-
     private void setColumn(int columnIndex, int[] columnValues) {
         for (int rowIndex = 0; rowIndex < columnValues.length; rowIndex++) {
             grid[rowIndex][columnIndex] = columnValues[rowIndex];
         }
     }
+
+    //GRID CHANGE DETECTION
+    public int[][] getGridImage(){
+        int[][] gridImage= new int[4][4];
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                gridImage[i][j] = grid[i][j];
+            }
+        }
+        return gridImage;
+    }
+    public boolean gridChanged(int [][] previousGridImage) {
+        for (int i = 0; i < 4; i++)
+            for (int j = 0; j < 4; j++)
+                if (grid[i][j] != previousGridImage[i][j]) return true;
+
+        return false;
+    }
+
+
+    @Override
+    public String toString() {
+        StringBuilder fullGrid = new StringBuilder();
+
+        for (int i = 0; i < 4; i++)
+            fullGrid.append("Board{" + "grid=").append(Arrays.toString(grid[i])).append("}\n");
+
+        return fullGrid.toString();
+    }//TOSTRING
 }

@@ -8,14 +8,17 @@ import androidx.annotation.Nullable;
 
 public abstract class SwipeListener extends GestureDetector.SimpleOnGestureListener {
 
+    //RECOGNITION PARAMETERS
     private static final int DISTANCE_THRESHOLD = 100;
     private static final int VELOCITY_THRESHOLD = 100;
 
+    //onDown necessary for onFling
     @Override
     public boolean onDown(@NonNull MotionEvent e) {
         return true;
     }
 
+    //SWIPE RECOGNITION
     @Override
     public boolean onFling(@Nullable MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
 
@@ -65,13 +68,10 @@ public abstract class SwipeListener extends GestureDetector.SimpleOnGestureListe
         return result;
     }
 
-
+    //SWIPE LISTENER ABSTRACTIONS
     protected abstract void onSwipeRight();
-
     protected abstract void onSwipeLeft();
 
-
     protected abstract void onSwipeUp();
-
     protected abstract void onSwipeDown();
 }
