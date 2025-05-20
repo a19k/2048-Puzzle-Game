@@ -2,8 +2,6 @@ package com.example.rma_2_anis_karic;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Color;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,12 +9,12 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class TileAdapter extends ListAdapter<Tile, TileAdapter.TileViewHolder> {
-
 
     private static final DiffUtil.ItemCallback<Tile> DIFF_CALLBACK = new DiffUtil.ItemCallback<Tile>() {
         @Override
@@ -38,7 +36,7 @@ public class TileAdapter extends ListAdapter<Tile, TileAdapter.TileViewHolder> {
     @Override
     public TileViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.tile, parent, false);
-        return new TileViewHolder(itemView);
+        return new TileViewHolder(itemView,parent.getContext());
     }
 
     @Override
@@ -58,70 +56,47 @@ public class TileAdapter extends ListAdapter<Tile, TileAdapter.TileViewHolder> {
         holder.bind(currentTile);
     }
 
-    static class TileViewHolder extends RecyclerView.ViewHolder{
-        private CardView tileCard;
-        private TextView tileText;
 
-        public TileViewHolder(@NonNull View itemView) {
+    static class TileViewHolder extends RecyclerView.ViewHolder{
+        private final CardView tileCard;
+        private final TextView tileText;
+        private Context context;
+
+        public TileViewHolder(@NonNull View itemView, Context context) {
             super(itemView);
-            tileCard = (CardView) itemView.findViewById(R.id.tileCard);
-            tileText = (TextView) itemView.findViewById(R.id.tileText);
+            tileCard = itemView.findViewById(R.id.tileCard);
+            tileText = itemView.findViewById(R.id.tileText);
+            this.context = context;
         }
 
         public void bind(Tile tile){
-            Log.d("TileAdapter", "Binding tile at (" + tile.getRow() + ", " + tile.getCol() + ") with value: " + tile.getValue());
             if (tile.getValue() > 0)
                 tileText.setText(String.valueOf(tile.getValue()));
             else
                 tileText.setText("");
 
             setTileColor(tileCard,tileText,tile.getValue());
+
         }
 
         private void setTileColor(CardView cardView,TextView textView, int tileValue) {
+            int colorResId;
             switch (tileValue) {
-                case 0:
-                    cardView.setBackgroundColor(Color.WHITE);
-                    break;
-                case 2:
-                    cardView.setBackgroundColor(Color.parseColor("#388E3C"));
-                    break;
-                case 4:
-                    cardView.setBackgroundColor(Color.parseColor("#00796B"));
-                    break;
-                case 8:
-                    cardView.setBackgroundColor(Color.BLUE);
-                    break;
-                case 16:
-                    cardView.setBackgroundColor(Color.CYAN);
-                    break;
-                case 32:
-                    cardView.setBackgroundColor(Color.parseColor("#0288D1"));
-                    break;
-                case 64:
-                    cardView.setBackgroundColor(Color.MAGENTA);
-                    break;
-                case 128:
-                    cardView.setBackgroundColor(Color.LTGRAY);
-                    break;
-                case 256:
-                    cardView.setBackgroundColor(Color.parseColor("#C2185B"));
-                    break;
-                case 512:
-                    cardView.setBackgroundColor(Color.parseColor("#E64A19"));
-                    break;
-                case 1024:
-                    cardView.setBackgroundColor(Color.YELLOW);
-                    break;
-                case 2048:
-                    cardView.setBackgroundColor(Color.RED);
-                    break;
-                default:
-                    cardView.setBackgroundColor(Color.BLACK);
-                    textView.setTextColor(Color.RED);
+                case 2:    colorResId = R.color.purple; break;
+                case 4:    colorResId = R.color.bluedark; break;
+                case 8:    colorResId = R.color.blue; break;
+                case 16:   colorResId = R.color.teal; break;
+                case 32:   colorResId = R.color.green; break;
+                case 64:   colorResId = R.color.lime; break;
+                case 128:  colorResId = R.color.piss; break;
+                case 256:  colorResId = R.color.yellow; break;
+                case 512:  colorResId = R.color.orange; break;
+                case 1024: colorResId = R.color.pink; break;
+                case 2048: colorResId = R.color.red; break;
+                default:   colorResId = R.color.white; // Fallback or handle error
             }
-        }
-
+            cardView.setBackgroundColor(ContextCompat.getColor(itemView.getContext(), colorResId));
+            }
     }
         public static int dpToPx(Context context, float dp) {
             return Math.round(dp * context.getResources().getDisplayMetrics().density);

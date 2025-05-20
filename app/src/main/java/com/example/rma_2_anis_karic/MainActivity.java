@@ -1,11 +1,9 @@
 package com.example.rma_2_anis_karic;
 
 import android.annotation.SuppressLint;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.GestureDetector;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.OvershootInterpolator;
@@ -17,13 +15,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.gridlayout.widget.GridLayout;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -33,8 +29,16 @@ public class MainActivity extends AppCompatActivity {
     private TextView hiScoreDisplay;
     private Button undoButton;
     private Button resetButton;
-    private Button settingsButton;
     private RecyclerView recyclerGrid;
+
+    private int primaryColor;
+    private int paleColor;
+    private int maxTileOnBoard;
+
+    private Button gameTitle;
+    private TextView scoreLabel;
+    private TextView hiScoreLabel;
+    private View divider;
 
     //UI LOGIC
     private Manager manager;
@@ -59,10 +63,10 @@ public class MainActivity extends AppCompatActivity {
 
         setUpViewReferences();
 
-        recyclerGrid.setLayoutManager(new GridLayoutManager(this,4));
+        setPrimaryColor(getColor(R.color.purple));
+        setPaleColor(getColor(R.color.purple_pale));
+        applyPrimaryColor();
 
-        tileAdapter = new TileAdapter();
-        recyclerGrid.setAdapter(tileAdapter);
 
         //VIEWMODEL
         manager = new ViewModelProvider(this).get(Manager.class);
@@ -93,6 +97,51 @@ public class MainActivity extends AppCompatActivity {
             public void onChanged(List<Tile> tiles) {
                 Log.d("MainActivity", "Submitting list to adapter. Size: " + (tiles == null ? "null" : tiles.size()));
                 tileAdapter.submitList(tiles);
+
+                int currentMax = 0;
+                for (Tile tile : tiles){
+                    if (tile.getValue() > currentMax) currentMax = tile.getValue();
+                }
+                maxTileOnBoard = currentMax;
+
+                switch (currentMax){
+                    case 2:setPrimaryColor(getColor(R.color.purple));
+                        setPaleColor(getColor(R.color.purple_pale));
+                        break;
+                    case 4:setPrimaryColor(getColor(R.color.bluedark));
+                        setPaleColor(getColor(R.color.bluedark_pale));
+                        break;
+                    case 8:setPrimaryColor(getColor(R.color.blue));
+                        setPaleColor(getColor(R.color.blue_pale));
+                        break;
+                    case 16:setPrimaryColor(getColor(R.color.teal));
+                        setPaleColor(getColor(R.color.teal_pale));
+                        break;
+                    case 32:setPrimaryColor(getColor(R.color.green));
+                        setPaleColor(getColor(R.color.green_pale));
+                        break;
+                    case 64:setPrimaryColor(getColor(R.color.lime));
+                        setPaleColor(getColor(R.color.lime_pale));
+                        break;
+                    case 128:setPrimaryColor(getColor(R.color.piss));
+                        setPaleColor(getColor(R.color.piss_pale));
+                        break;
+                    case 256:setPrimaryColor(getColor(R.color.yellow));
+                        setPaleColor(getColor(R.color.yellow_pale));
+                        break;
+                    case 512:setPrimaryColor(getColor(R.color.orange));
+                        setPaleColor(getColor(R.color.orange_pale));
+                        break;
+                    case 1024:setPrimaryColor(getColor(R.color.pink));
+                        setPaleColor(getColor(R.color.pink_pale));
+                        break;
+                    case 2048:setPrimaryColor(getColor(R.color.red));
+                        setPaleColor(getColor(R.color.red_pale));
+                        break;
+                    default:setPrimaryColor(getColor(R.color.text_dark));
+                    setPaleColor(getColor(R.color.white));
+                }
+                applyPrimaryColor();
             }
         });
         manager.getScore().observe(this, new Observer<Integer>() {
@@ -136,13 +185,41 @@ public class MainActivity extends AppCompatActivity {
         hiScoreDisplay = (TextView) findViewById(R.id.hiscore);
         undoButton = (Button) findViewById(R.id.undo);
         resetButton = (Button) findViewById(R.id.reset);
-        settingsButton = (Button) findViewById(R.id.settings);
         recyclerGrid = (RecyclerView) findViewById(R.id.recyclerGrid);
 
+        gameTitle = (Button) findViewById(R.id.gameTitle);
+        scoreLabel = (TextView) findViewById(R.id.scoreLabel);
+        hiScoreLabel = (TextView) findViewById(R.id.hiscoreLabel);
+        divider = findViewById(R.id.divider);
+
+        recyclerGrid.setLayoutManager(new GridLayoutManager(this,4));
+
+        tileAdapter = new TileAdapter();
+        recyclerGrid.setAdapter(tileAdapter);
     }
 
 
-    //SETUP / UPDATE
+    //COLORING
+
+    public void setPrimaryColor(int primaryColor) {
+        this.primaryColor = primaryColor;
+    }
+    public void setPaleColor(int paleColor) {
+        this.paleColor = paleColor;
+    }
+
+    private void applyPrimaryColor(){
+        gameTitle.setTextColor(primaryColor);
+        gameTitle.setBackgroundColor(paleColor);
+        divider.setBackgroundColor(primaryColor);
+        scoreLabel.setTextColor(primaryColor);
+        scoreDisplay.setTextColor(primaryColor);
+        hiScoreLabel.setTextColor(primaryColor);
+        hiScoreDisplay.setTextColor(primaryColor);
+        recyclerGrid.setBackgroundColor(paleColor);
+        undoButton.setBackgroundColor(primaryColor);
+        resetButton.setBackgroundColor(primaryColor);
+    }
 
 
     //ANIMATION

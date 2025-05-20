@@ -1,7 +1,5 @@
 package com.example.rma_2_anis_karic;
 
-import android.util.Log;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -105,12 +103,6 @@ public class Manager extends ViewModel {
             for (int col = 0; col < 4; col++) {
                     tiles.add(new Tile(row, col,grid[row][col]));
             }
-        }
-        Log.d("GameViewModel", "Number of TileUiModels created: " + tiles.size());
-        if (!tiles.isEmpty()) {
-            Log.d("GameViewModel", "First TileUiModel - Value: " + tiles.get(0).getValue() +
-                    ", Row: " + tiles.get(0).getRow() +
-                    ", Col: " + tiles.get(0).getCol());
         }
         liveTiles.setValue(tiles);
     }
