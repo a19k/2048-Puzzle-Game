@@ -36,7 +36,7 @@ public class TileAdapter extends ListAdapter<Tile, TileAdapter.TileViewHolder> {
     @Override
     public TileViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.tile, parent, false);
-        return new TileViewHolder(itemView,parent.getContext());
+        return new TileViewHolder(itemView);
     }
 
     @Override
@@ -60,13 +60,11 @@ public class TileAdapter extends ListAdapter<Tile, TileAdapter.TileViewHolder> {
     static class TileViewHolder extends RecyclerView.ViewHolder{
         private final CardView tileCard;
         private final TextView tileText;
-        private Context context;
 
-        public TileViewHolder(@NonNull View itemView, Context context) {
+        public TileViewHolder(@NonNull View itemView) {
             super(itemView);
             tileCard = itemView.findViewById(R.id.tileCard);
             tileText = itemView.findViewById(R.id.tileText);
-            this.context = context;
         }
 
         public void bind(Tile tile){
@@ -93,7 +91,7 @@ public class TileAdapter extends ListAdapter<Tile, TileAdapter.TileViewHolder> {
                 case 512:  colorResId = R.color.orange; break;
                 case 1024: colorResId = R.color.pink; break;
                 case 2048: colorResId = R.color.red; break;
-                default:   colorResId = R.color.white; // Fallback or handle error
+                default:   colorResId = R.color.white;
             }
             cardView.setBackgroundColor(ContextCompat.getColor(itemView.getContext(), colorResId));
             }

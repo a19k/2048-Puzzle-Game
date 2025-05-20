@@ -1,12 +1,12 @@
 package com.example.rma_2_anis_karic;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.OvershootInterpolator;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -159,6 +159,15 @@ public class MainActivity extends AppCompatActivity {
 
 
         //VIEW LISTENERS
+        gameTitle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, SplashActivity.class);
+                startActivity(intent);
+                // Optional: finish() MainActivity if you don't want to return to it
+                // finish();
+            }
+        });
         resetButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -219,40 +228,6 @@ public class MainActivity extends AppCompatActivity {
         recyclerGrid.setBackgroundColor(paleColor);
         undoButton.setBackgroundColor(primaryColor);
         resetButton.setBackgroundColor(primaryColor);
-    }
-
-
-    //ANIMATION
-    private void animateMove(TextView tile, float diffX, float diffY) {
-        tile.animate().
-                translationXBy(diffX).
-                translationYBy(diffY).
-                setDuration(150).
-                start();
-
-    }
-    private void animateAppearance(TextView tile){
-        tile.setScaleX(0f);
-        tile.setScaleY(0f);
-        tile.animate().
-                scaleX(1f).
-                scaleY(1f).
-                setDuration(150).
-                setInterpolator(new OvershootInterpolator()).
-                start();
-    }
-    private void animateMerge(TextView tile){
-        tile.animate().
-                scaleX(1.2f).
-                scaleY(1.2f).
-                setDuration(150).
-                withEndAction(new Runnable() {
-                    @Override
-                    public void run() {
-                        tile.animate().scaleX(1f).scaleY(1f).setDuration(150).start();
-                    }
-                })
-                .start();
     }
 
 }
