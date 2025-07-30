@@ -19,7 +19,7 @@ public class TileAdapter extends ListAdapter<Tile, TileAdapter.TileViewHolder> {
     private static final DiffUtil.ItemCallback<Tile> DIFF_CALLBACK = new DiffUtil.ItemCallback<Tile>() {
         @Override
         public boolean areItemsTheSame(@NonNull Tile oldItem, @NonNull Tile newItem) {
-            return (oldItem.getRow() == newItem.getRow() && oldItem.getCol()== newItem.getCol());
+            return (oldItem.getId() == newItem.getId());
         }
 
         @Override
@@ -96,8 +96,8 @@ public class TileAdapter extends ListAdapter<Tile, TileAdapter.TileViewHolder> {
             cardView.setBackgroundColor(ContextCompat.getColor(itemView.getContext(), colorResId));
             }
     }
-        public static int dpToPx(Context context, float dp) {
-            return Math.round(dp * context.getResources().getDisplayMetrics().density);
-        }
+    public static int dpToPx(Context context, float dp) {
+        return Math.round(dp * context.getResources().getDisplayMetrics().density);
+    }
 
 }
