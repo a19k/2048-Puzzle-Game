@@ -2,28 +2,32 @@ package com.example.rma_2_anis_karic;
 
 import android.util.Log;
 
-import java.util.Arrays;
-import java.util.function.IntPredicate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Board {
 
-    private final int[][] grid;
+    private final List<List<Tile>> grid;
     private int score;
     private int hiScore = 0;
 
-    private final int[][] saveState = new int[4][4];
+    private List<List<Tile>> saveState;
     private int scoreSave;
     private int hiScoreSave;
 
     private static final String TAG = "BOARD";//DEBUG TAG
 
     public Board() {
-        this.grid = new int[4][4];
+        this.grid = getNewGrid();
+        addNewTiles();
+        addNewTiles();
+        this.saveState = getGridImage();
+
         this.score = 0;
     }//CONSTRUCTOR
 
     //GET
-    public int[][] getGrid() {
+    public List<List<Tile>> getGrid() {
         return grid;
     }
     public int getScore() {
@@ -40,18 +44,15 @@ public class Board {
     }
 
     //SAVESTATE
-    private void setSaveState(int[][] previousGridImage,int previousScore,int previousHiScore) {
+    private void setSaveState(List<List<Tile>> previousGridImage,int previousScore,int previousHiScore) {
         if (!gridChanged(previousGridImage)) return;
 
         scoreSave = previousScore;
         hiScoreSave = previousHiScore;
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                saveState[i][j] = previousGridImage[i][j];
-            }
-        }
+        saveState = copyGrid(previousGridImage);
+
     }
-    public int[][] getSaveState() {
+    public List<List<Tile>> getSaveState() {
         return saveState;
     }
     public void loadSaveState() {
@@ -59,7 +60,7 @@ public class Board {
         hiScore = hiScoreSave;
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
-                grid[i][j] = saveState[i][j];
+                grid.get(i).set(j, saveState.get(i).get(j));
             }
         }
     }
@@ -68,7 +69,7 @@ public class Board {
     public void clear() {
         for (int i = 0; i < 4; i++)
             for (int j = 0; j < 4; j++)
-                grid[i][j] = 0;
+                grid.get(i).get(j).setValue(0);
 
         score = 0;
     }
@@ -77,7 +78,7 @@ public class Board {
         int emptyTileCounter = 0;
         for (int i = 0; i < 4; i++)
             for (int j = 0; j < 4; j++)
-                if (grid[i][j] == 0) emptyTileCounter++;
+                if (grid.get(i).get(j).getValue() == 0) emptyTileCounter++;
 
         if (emptyTileCounter == 0) return 1;
 
@@ -93,8 +94,8 @@ public class Board {
         emptyTileCounter = 0;
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++)
-                if (grid[i][j] == 0) {
-                    if (emptyTileCounter == tileOfChoice) grid[i][j] = tileValue;
+                if (grid.get(i).get(j).getValue() == 0) {
+                    if (emptyTileCounter == tileOfChoice) grid.get(i).get(j).setValue(tileValue);
                     emptyTileCounter++;
                 }
         }
@@ -106,7 +107,7 @@ public class Board {
 
     //MOVE
     public void moveLeft() {
-        int[][] gridImage = getGridImage();
+        List<List<Tile>> gridImage = getGridImage();
         int score = getScore();
         int hiscore = getHiScore();
 
@@ -114,26 +115,25 @@ public class Board {
         for (int rowIndex = 0; rowIndex < 4; rowIndex++) {
 
             //extract values/tiles
-            int[] rowValues = filterEmpty(grid[rowIndex]);
+            List<Tile> rowValues = grid.get(rowIndex);
 
             //if there is no, go to next row
-            if (rowValues.length == 0) continue;
+            if (rowValues.size() == 0) continue;
 
             //otherwise, merge same values
-            rowValues = merge(rowValues);
-
-            //extends the values to a full row, by filling in zeroes
-            rowValues = extend(rowValues);
+            merge(rowValues);
 
             //apply the change
-            grid[rowIndex] = rowValues;
-
-            Log.d(TAG, Arrays.toString(grid[rowIndex]));
+            grid.set(rowIndex, rowValues);
         }
-        setSaveState(gridImage,score,hiScore);
+
+        //update row and column fields
+        setSaveState(gridImage,score,hiscore);
+
+        Log.d(TAG, toString());
     }
     public void moveRight() {
-        int[][] gridImage = getGridImage();
+        List<List<Tile>> gridImage = getGridImage();
         int score = getScore();
         int hiscore = getHiScore();
 
@@ -141,49 +141,28 @@ public class Board {
         for (int rowIndex = 0; rowIndex < 4; rowIndex++) {
 
             //extract values/tiles
-            int[] rowValues = filterEmpty(grid[rowIndex]);
+            List<Tile> rowValues = grid.get(rowIndex);
 
             //if there is no, go to next row
-            if (rowValues.length == 0) continue;
+            if (rowValues.size() == 0) continue;
 
-            /*
-            //otherwise, merge same values
-            for (int i = rowValues.length - 2; i >= 0; i--){
-                if (rowValues[i] == rowValues[i+1]){
-                    rowValues[i+1] += rowValues[i];
-                    addScore(rowValues[i+1]);
-                    rowValues[i] = 0;
-                    rowValues = filterEmpty(rowValues);
-                }
-            }
-
-            //fill up the rest of the row with empty slots/zeroes
-            for (int i = 0; i < 4; i++){
-                if (i < 4 - rowValues.length)
-                    grid[rowIndex][i] = 0;
-                else
-                    grid[rowIndex][i] = rowValues[i - (4 - rowValues.length)];
-            }
-             */
+            rowValues = reverse(rowValues);
 
             //reverse merge, right to left
-            rowValues = merge(reverse(rowValues));
+            merge(rowValues);
 
-            //extends the values to a full row, by filling in zeroes
-            rowValues = extend(rowValues);
-
-            //reverses the full row, alligning it from the right
+            //reverses again, aligning tiles to the right
             rowValues = reverse(rowValues);
 
             //applies the change
-            grid[rowIndex] = rowValues;
-
-            Log.d(TAG, Arrays.toString(grid[rowIndex]));
+            grid.set(rowIndex, rowValues);
         }
-        setSaveState(gridImage,score,hiScore);
+        //update row and column fields
+        setSaveState(gridImage,score,hiscore);
+        Log.d(TAG, toString());
     }
     public void moveUp() {
-        int[][] gridImage = getGridImage();
+        List<List<Tile>> gridImage = getGridImage();
         int score = getScore();
         int hiscore = getHiScore();
 
@@ -191,29 +170,25 @@ public class Board {
         for (int columnIndex = 0; columnIndex < 4; columnIndex++) {
 
             //extract values/tiles
-            int[] columnValues = getColumn(columnIndex);
-
-            columnValues = filterEmpty(columnValues);
+            List<Tile> columnValues = getColumn(columnIndex);
 
             //if there is no, go to next row
-            if (columnValues.length == 0) continue;
+            if (columnValues.size() == 0) continue;
 
             //otherwise, merge same values
-            columnValues = merge(columnValues);
-
-            //extends the values to a full row, by filling in zeroes
-            columnValues = extend(columnValues);
+            merge(columnValues);
 
             //applies the change
             setColumn(columnIndex, columnValues);
 
         }
-        setSaveState(gridImage,score,hiScore);
+        //update row and column fields
+        setSaveState(gridImage,score,hiscore);
 
         Log.d(TAG, toString());
     }
     public void moveDown() {
-        int[][] gridImage = getGridImage();
+        List<List<Tile>> gridImage = getGridImage();
         int score = getScore();
         int hiscore = getHiScore();
 
@@ -221,120 +196,129 @@ public class Board {
         for (int columnIndex = 0; columnIndex < 4; columnIndex++) {
 
             //extract values/tiles
-            int[] columnValues = getColumn(columnIndex);
-
-            columnValues = filterEmpty(columnValues);
+            List<Tile> columnValues = getColumn(columnIndex);
 
             //if there is no, go to next row
-            if (columnValues.length == 0) continue;
+            if (columnValues.size() == 0) continue;
 
-            /*
-            //otherwise, merge same values
-            for (int i = columnValues.length - 2; i >= 0; i--){
-                if (columnValues[i] == columnValues[i+1]){
-                    columnValues[i+1] += columnValues[i];
-                    addScore(columnValues[i+1]);
-                    columnValues[i] = 0;
-                    columnValues = filterEmpty(columnValues);
-                }
-            }
-            */
+            columnValues = reverse(columnValues);
 
             //reverse merge, bottom to top
-            columnValues = merge(reverse(columnValues));
+            merge(columnValues);
 
-            //extends the values to a full row, by filling in zeroes
-            columnValues = extend(columnValues);
-
-            //reverses the full row, alligning it from the right
+            //reverses again, aligning tiles to the right
             columnValues = reverse(columnValues);
 
             //applies the change
             setColumn(columnIndex, columnValues);
+
         }
-        setSaveState(gridImage,score,hiScore);
+        //update row and column fields
+        setSaveState(gridImage,score,hiscore);
 
         Log.d(TAG, toString());
     }
 
     //MOVE UTILITIES
-    private int[] merge(int[] values) {
-        for (int i = 1; i < values.length; i++) {
-            if (values[i - 1] == values[i]) {
-                values[i - 1] += values[i];
-                addScore(values[i - 1]);
-                values[i] = 0;
-                values = filterEmpty(values);
+    private void merge(List<Tile> tiles) {
+        floatEmptyTilesToEnd(tiles);
+
+        for (int i = 1; i < tiles.size(); i++) {
+            Tile current = tiles.get(i);
+            Tile previous = tiles.get(i - 1);
+
+            if (current.getValue() != 0  && previous.getValue() == current.getValue()) {
+                previous.setValue(previous.getValue() * 2);
+                addScore(previous.getValue());
+                current.setValue(0);
             }
         }
-        return values;
-    }
-    private int[] extend(int[] values) {
-        int[] fullRow = new int[4];
+        floatEmptyTilesToEnd(tiles);
 
-        for (int i = 0; i < fullRow.length; i++) {
-            if (i < values.length)
-                fullRow[i] = values[i];
-            else fullRow[i] = 0;
-        }
-
-        return fullRow;
+        Log.d(TAG,tiles.toString() + "merge");
     }
-    private int[] reverse(int[] arr) {
-        int[] result = new int[arr.length];
-        for (int i = 0; i < arr.length; i++)
-            result[arr.length - 1 - i] = arr[i];
+    private List<Tile> reverse(List<Tile> normal) {
+        List<Tile> reverse = new ArrayList<>(4);
 
-        return result;
+        for (int i = 0; i < normal.size(); i++)
+            reverse.add(normal.get(normal.size()-1-i));
+
+        //Log.d(TAG,normal.toString());
+        //Log.d(TAG,reverse.toString());
+
+        return reverse;
     }
-    private int[] filterEmpty(int[] values) {
-        return Arrays.stream(values).filter(new IntPredicate() {
-            @Override
-            public boolean test(int value) {
-                return value > 0;
+    private void floatEmptyTilesToEnd(List<Tile> tiles){
+        int i = 0;
+        int size = tiles.size();
+        while (i < size){
+            if (tiles.get(i).getValue() == 0){
+                tiles.add(tiles.remove(i));
+                size--;
             }
-        }).toArray();
-    }
-    private int[] getColumn(int columnIndex) {
-        int[] columnValues = new int[4];
-        for (int rowIndex = 0; rowIndex < 4; rowIndex++) {
-            columnValues[rowIndex] = grid[rowIndex][columnIndex];
+            else i++;
         }
+    }
+    private List<Tile> getColumn(int columnIndex) {
+        List<Tile> columnValues = new ArrayList<Tile>(4);
+
+        for (int rowIndex = 0; rowIndex < 4; rowIndex++)
+            columnValues.add(this.grid.get(rowIndex).get(columnIndex));
 
         return columnValues;
     }
-    private void setColumn(int columnIndex, int[] columnValues) {
-        for (int rowIndex = 0; rowIndex < columnValues.length; rowIndex++) {
-            grid[rowIndex][columnIndex] = columnValues[rowIndex];
+    private void setColumn(int columnIndex, List<Tile> columnValues) {
+        for (int rowIndex = 0; rowIndex < columnValues.size(); rowIndex++) {
+            grid.get(rowIndex).set(columnIndex, columnValues.get(rowIndex));
         }
     }
 
     //GRID CHANGE DETECTION
-    public int[][] getGridImage(){
-        int[][] gridImage= new int[4][4];
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                gridImage[i][j] = grid[i][j];
-            }
-        }
-        return gridImage;
-    }
-    public boolean gridChanged(int [][] previousGridImage) {
+    public List<List<Tile>> getGridImage(){
+        return copyGrid(this.grid);
+    }//deep copy of THE GRID(current)
+    public boolean gridChanged(List<List<Tile>> previousGridImage) {
         for (int i = 0; i < 4; i++)
             for (int j = 0; j < 4; j++)
-                if (grid[i][j] != previousGridImage[i][j]) return true;
+                if (grid.get(i).get(j).getValue() != previousGridImage.get(i).get(j).getValue()) return true;
 
         return false;
-    }
+    }//checks for diff between current and given grid, for use with previous grid states
+    private List<List<Tile>> getNewGrid(){
+        List<List<Tile>> blank = new ArrayList<List<Tile>>(4);
 
+        for (int i = 0; i < 4; i++) {
+            blank.add(new ArrayList<>(4));
+            for (int j = 0; j < 4; j++) {
+                blank.get(i).add(new Tile(i, j, 0));
+            }
+        }
+
+        return blank;
+    }//creates a new grid with new ids
 
     @Override
     public String toString() {
         StringBuilder fullGrid = new StringBuilder();
 
         for (int i = 0; i < 4; i++)
-            fullGrid.append("Board{" + "grid=").append(Arrays.toString(grid[i])).append("}\n");
+            for (int j = 0; j < 4; j++)
+                fullGrid.append("Board{" + "grid=").append(grid.get(i).get(j).toString()).append("}\n");
 
         return fullGrid.toString();
     }//TOSTRING
+
+    private List<List<Tile>> copyGrid(List<List<Tile>> original){
+        List<List<Tile>> copy = new ArrayList<>(4);
+
+        for (int i = 0; i < 4; i++) {
+            copy.add(new ArrayList<>(4));
+            for (int j = 0; j < 4; j++) {
+                Tile old = original.get(i).get(j);
+                copy.get(i).add(new Tile(i, j, old.getValue()));
+
+            }
+        }
+        return copy;
+    }//DEEP COPY OF ANY LIST<LIST<TILE>> GRID
 }

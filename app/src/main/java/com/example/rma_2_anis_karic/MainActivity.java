@@ -20,6 +20,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -65,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
 
         setPrimaryColor(getColor(R.color.purple));
         setPaleColor(getColor(R.color.purple_pale));
-        applyPrimaryColor();
+        applyColor();
 
 
         //VIEWMODEL
@@ -141,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
                     default:setPrimaryColor(getColor(R.color.text_dark));
                     setPaleColor(getColor(R.color.white));
                 }
-                applyPrimaryColor();
+                applyColor();
             }
         });
         manager.getScore().observe(this, new Observer<Integer>() {
@@ -207,9 +208,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerGrid.setAdapter(tileAdapter);
     }
 
-
     //COLORING
-
     public void setPrimaryColor(int primaryColor) {
         this.primaryColor = primaryColor;
     }
@@ -217,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
         this.paleColor = paleColor;
     }
 
-    private void applyPrimaryColor(){
+    private void applyColor(){
         gameTitle.setTextColor(primaryColor);
         gameTitle.setBackgroundColor(paleColor);
         divider.setBackgroundColor(primaryColor);

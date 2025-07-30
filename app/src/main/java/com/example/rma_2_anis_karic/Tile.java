@@ -4,17 +4,21 @@ import java.util.Objects;
 
 public class Tile {
 
+    private final long id;
     private int row;
     private int col;
     private int value;
 
-
     public Tile(int row, int col, int value) {
+        this.id = row * 4 + col;
         this.row = row;
         this.col = col;
         this.value = value;
     }
 
+    public long getId() {
+        return id;
+    }
     public int getRow() {
         return row;
     }
@@ -39,11 +43,21 @@ public class Tile {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Tile tile = (Tile) o;
-        return row == tile.row && col == tile.col && value == tile.value;
+        return id == tile.id && value == tile.value;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(row, col, value);
+        return Objects.hash(id, row, col, value);
+    }
+
+    @Override
+    public String toString() {
+        return "Tile{" +
+                "id=" + id +
+                ", row=" + row +
+                ", col=" + col +
+                ", value=" + value +
+                '}';
     }
 }

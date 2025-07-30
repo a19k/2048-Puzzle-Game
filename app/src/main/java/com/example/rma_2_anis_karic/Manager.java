@@ -1,5 +1,7 @@
 package com.example.rma_2_anis_karic;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -9,6 +11,7 @@ import java.util.List;
 
 public class Manager extends ViewModel {
 
+    private static final String TAG = "MANAGER";//DEBUG TAG
     private final Board board = new Board();
 
     private final MutableLiveData<List<Tile>> liveTiles = new MutableLiveData<>();
@@ -16,7 +19,7 @@ public class Manager extends ViewModel {
     private final MutableLiveData<Integer> liveHiScore = new MutableLiveData<>();
 
     public Manager() {
-        newGame();
+        updateTiles();
     }//CONSTRUCTOR
 
     //LIVEDATA GET
@@ -50,7 +53,7 @@ public class Manager extends ViewModel {
 
     //GRID SWIPE GESTURE HANDLERS
     public void swipeRightHandler() {
-        int[][] previousGridImage = board.getGridImage();
+        List<List<Tile>> previousGridImage = board.getGridImage();
         board.moveRight();
 
         if (board.gridChanged(previousGridImage))
@@ -61,7 +64,7 @@ public class Manager extends ViewModel {
         liveHiScore.setValue(board.getHiScore());
     }
     public void swipeLeftHandler() {
-        int[][] previousGridImage = board.getGridImage();
+        List<List<Tile>> previousGridImage = board.getGridImage();
         board.moveLeft();
 
         if (board.gridChanged(previousGridImage))
@@ -72,7 +75,7 @@ public class Manager extends ViewModel {
         liveHiScore.setValue(board.getHiScore());
     }
     public void swipeUpHandler() {
-        int[][] previousGridImage = board.getGridImage();
+        List<List<Tile>> previousGridImage = board.getGridImage();
         board.moveUp();
 
         if (board.gridChanged(previousGridImage))
@@ -83,7 +86,7 @@ public class Manager extends ViewModel {
         liveHiScore.setValue(board.getHiScore());
     }
     public void swipeDownHandler() {
-        int[][] previousGridImage = board.getGridImage();
+        List<List<Tile>> previousGridImage = board.getGridImage();
         board.moveDown();
 
         if (board.gridChanged(previousGridImage))
@@ -96,15 +99,17 @@ public class Manager extends ViewModel {
 
     //DATA STRUCTURE CONVERTER
     private void updateTiles() {
-        int[][] grid = board.getGrid();
+        List<List<Tile>> grid = board.getGridImage();
         List<Tile> tiles = new ArrayList<>();
 
         for (int row = 0; row < 4; row++) {
             for (int col = 0; col < 4; col++) {
-                    tiles.add(new Tile(row, col,grid[row][col]));
+                Tile currentTile = grid.get(row).get(col);
+                tiles.add(new Tile(row, col, currentTile.getValue()));
             }
         }
         liveTiles.setValue(tiles);
+        Log.d(TAG,liveTiles.toString());
     }
 
 }
