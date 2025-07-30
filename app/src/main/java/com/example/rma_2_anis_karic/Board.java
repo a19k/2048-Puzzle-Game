@@ -50,7 +50,6 @@ public class Board {
         scoreSave = previousScore;
         hiScoreSave = previousHiScore;
         saveState = copyGrid(previousGridImage);
-
     }
     public List<List<Tile>> getSaveState() {
         return saveState;
@@ -126,10 +125,7 @@ public class Board {
             //apply the change
             grid.set(rowIndex, rowValues);
         }
-
-        //update row and column fields
         setSaveState(gridImage,score,hiscore);
-
         Log.d(TAG, toString());
     }
     public void moveRight() {
@@ -146,9 +142,10 @@ public class Board {
             //if there is no, go to next row
             if (rowValues.size() == 0) continue;
 
+            //reverse the tile order
             rowValues = reverse(rowValues);
 
-            //reverse merge, right to left
+            //merge same value tiles
             merge(rowValues);
 
             //reverses again, aligning tiles to the right
@@ -157,7 +154,6 @@ public class Board {
             //applies the change
             grid.set(rowIndex, rowValues);
         }
-        //update row and column fields
         setSaveState(gridImage,score,hiscore);
         Log.d(TAG, toString());
     }
@@ -201,9 +197,10 @@ public class Board {
             //if there is no, go to next row
             if (columnValues.size() == 0) continue;
 
+            //reverse the tile order
             columnValues = reverse(columnValues);
 
-            //reverse merge, bottom to top
+            //merge same value tiles
             merge(columnValues);
 
             //reverses again, aligning tiles to the right
@@ -211,11 +208,8 @@ public class Board {
 
             //applies the change
             setColumn(columnIndex, columnValues);
-
         }
-        //update row and column fields
         setSaveState(gridImage,score,hiscore);
-
         Log.d(TAG, toString());
     }
 
@@ -235,7 +229,6 @@ public class Board {
         }
         floatEmptyTilesToEnd(tiles);
 
-        Log.d(TAG,tiles.toString() + "merge");
     }
     private List<Tile> reverse(List<Tile> normal) {
         List<Tile> reverse = new ArrayList<>(4);
@@ -243,8 +236,6 @@ public class Board {
         for (int i = 0; i < normal.size(); i++)
             reverse.add(normal.get(normal.size()-1-i));
 
-        //Log.d(TAG,normal.toString());
-        //Log.d(TAG,reverse.toString());
 
         return reverse;
     }
@@ -259,6 +250,8 @@ public class Board {
             else i++;
         }
     }
+
+    //COLUMN SHORTCUTS
     private List<Tile> getColumn(int columnIndex) {
         List<Tile> columnValues = new ArrayList<Tile>(4);
 
@@ -274,6 +267,19 @@ public class Board {
     }
 
     //GRID CHANGE DETECTION
+    private List<List<Tile>> copyGrid(List<List<Tile>> original){
+        List<List<Tile>> copy = new ArrayList<>(4);
+
+        for (int i = 0; i < 4; i++) {
+            copy.add(new ArrayList<>(4));
+            for (int j = 0; j < 4; j++) {
+                Tile old = original.get(i).get(j);
+                copy.get(i).add(new Tile(i, j, old.getValue()));
+
+            }
+        }
+        return copy;
+    }//DEEP COPY OF ANY LIST<LIST<TILE>> GRID
     public List<List<Tile>> getGridImage(){
         return copyGrid(this.grid);
     }//deep copy of THE GRID(current)
@@ -307,18 +313,4 @@ public class Board {
 
         return fullGrid.toString();
     }//TOSTRING
-
-    private List<List<Tile>> copyGrid(List<List<Tile>> original){
-        List<List<Tile>> copy = new ArrayList<>(4);
-
-        for (int i = 0; i < 4; i++) {
-            copy.add(new ArrayList<>(4));
-            for (int j = 0; j < 4; j++) {
-                Tile old = original.get(i).get(j);
-                copy.get(i).add(new Tile(i, j, old.getValue()));
-
-            }
-        }
-        return copy;
-    }//DEEP COPY OF ANY LIST<LIST<TILE>> GRID
 }
