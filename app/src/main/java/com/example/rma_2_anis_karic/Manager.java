@@ -1,7 +1,5 @@
 package com.example.rma_2_anis_karic;
 
-import android.util.Log;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -109,7 +107,6 @@ public class Manager extends ViewModel {
             }
         }
         liveTiles.setValue(tiles);
-        Log.d(TAG,liveTiles.toString());
     }
 
 }

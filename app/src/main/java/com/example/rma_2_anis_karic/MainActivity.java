@@ -1,13 +1,16 @@
 package com.example.rma_2_anis_karic;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -20,7 +23,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -30,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView hiScoreDisplay;
     private Button undoButton;
     private Button resetButton;
-    private RecyclerView recyclerGrid;
+    private FrameLayout grid;
 
     private int primaryColor;
     private int paleColor;
@@ -43,9 +45,10 @@ public class MainActivity extends AppCompatActivity {
 
     //UI LOGIC
     private Manager manager;
-    private TileAdapter tileAdapter;
     private GestureDetector gestureDetector;
 
+    private final int screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
+    private final int tileSize = (screenWidth - dpToPx(32)) /4;
     private static final String TAG = "grid/gridTiles";//DEBUG TAG
 
 
@@ -96,53 +99,8 @@ public class MainActivity extends AppCompatActivity {
         manager.getTiles().observe(this, new Observer<List<Tile>>() {
             @Override
             public void onChanged(List<Tile> tiles) {
-                Log.d("MainActivity", "Submitting list to adapter. Size: " + (tiles == null ? "null" : tiles.size()));
-                tileAdapter.submitList(tiles);
-
-                int currentMax = 0;
-                for (Tile tile : tiles){
-                    if (tile.getValue() > currentMax) currentMax = tile.getValue();
-                }
-                maxTileOnBoard = currentMax;
-
-                switch (currentMax){
-                    case 2:setPrimaryColor(getColor(R.color.purple));
-                        setPaleColor(getColor(R.color.purple_pale));
-                        break;
-                    case 4:setPrimaryColor(getColor(R.color.bluedark));
-                        setPaleColor(getColor(R.color.bluedark_pale));
-                        break;
-                    case 8:setPrimaryColor(getColor(R.color.blue));
-                        setPaleColor(getColor(R.color.blue_pale));
-                        break;
-                    case 16:setPrimaryColor(getColor(R.color.teal));
-                        setPaleColor(getColor(R.color.teal_pale));
-                        break;
-                    case 32:setPrimaryColor(getColor(R.color.green));
-                        setPaleColor(getColor(R.color.green_pale));
-                        break;
-                    case 64:setPrimaryColor(getColor(R.color.lime));
-                        setPaleColor(getColor(R.color.lime_pale));
-                        break;
-                    case 128:setPrimaryColor(getColor(R.color.piss));
-                        setPaleColor(getColor(R.color.piss_pale));
-                        break;
-                    case 256:setPrimaryColor(getColor(R.color.yellow));
-                        setPaleColor(getColor(R.color.yellow_pale));
-                        break;
-                    case 512:setPrimaryColor(getColor(R.color.orange));
-                        setPaleColor(getColor(R.color.orange_pale));
-                        break;
-                    case 1024:setPrimaryColor(getColor(R.color.pink));
-                        setPaleColor(getColor(R.color.pink_pale));
-                        break;
-                    case 2048:setPrimaryColor(getColor(R.color.red));
-                        setPaleColor(getColor(R.color.red_pale));
-                        break;
-                    default:setPrimaryColor(getColor(R.color.text_dark));
-                    setPaleColor(getColor(R.color.white));
-                }
-                applyColor();
+                updateGrid(tiles);
+                colorizeUI(tiles);
             }
         });
         manager.getScore().observe(this, new Observer<Integer>() {
@@ -181,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
                 manager.undo();
             }
         });
-        recyclerGrid.setOnTouchListener(new View.OnTouchListener() {
+        grid.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 return gestureDetector.onTouchEvent(event);
@@ -195,27 +153,84 @@ public class MainActivity extends AppCompatActivity {
         hiScoreDisplay = (TextView) findViewById(R.id.hiscore);
         undoButton = (Button) findViewById(R.id.undo);
         resetButton = (Button) findViewById(R.id.reset);
-        recyclerGrid = (RecyclerView) findViewById(R.id.recyclerGrid);
+        grid = (FrameLayout) findViewById(R.id.grid);
 
         gameTitle = (Button) findViewById(R.id.gameTitle);
         scoreLabel = (TextView) findViewById(R.id.scoreLabel);
         hiScoreLabel = (TextView) findViewById(R.id.hiscoreLabel);
         divider = findViewById(R.id.divider);
+    }
 
-        recyclerGrid.setLayoutManager(new GridLayoutManager(this,4));
+    //UPDATE
+    private void updateGrid(List<Tile> tiles){
+        grid.removeAllViews();
 
-        tileAdapter = new TileAdapter();
-        recyclerGrid.setAdapter(tileAdapter);
+        int i=0;
+        for (Tile currentTile : tiles){
+            TileView currentTileView = new TileView(this);
+            currentTileView.setValue(currentTile.getValue());
+            FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(tileSize,tileSize);
+            layoutParams.leftMargin = currentTile.getCol() * tileSize;
+            layoutParams.topMargin = currentTile.getRow() * tileSize;
+
+            grid.addView(currentTileView,layoutParams);
+            Log.d(TAG, grid.getChildAt(i++).toString());
+        }
     }
 
     //COLORING
-    public void setPrimaryColor(int primaryColor) {
+    private void colorizeUI(List<Tile> tiles){
+        int currentMax = 0;
+        for (Tile tile : tiles){
+            if (tile.getValue() > currentMax) currentMax = tile.getValue();
+        }
+        maxTileOnBoard = currentMax;
+
+        switch (currentMax){
+            case 2:setPrimaryColor(getColor(R.color.purple));
+                setPaleColor(getColor(R.color.purple_pale));
+                break;
+            case 4:setPrimaryColor(getColor(R.color.bluedark));
+                setPaleColor(getColor(R.color.bluedark_pale));
+                break;
+            case 8:setPrimaryColor(getColor(R.color.blue));
+                setPaleColor(getColor(R.color.blue_pale));
+                break;
+            case 16:setPrimaryColor(getColor(R.color.teal));
+                setPaleColor(getColor(R.color.teal_pale));
+                break;
+            case 32:setPrimaryColor(getColor(R.color.green));
+                setPaleColor(getColor(R.color.green_pale));
+                break;
+            case 64:setPrimaryColor(getColor(R.color.lime));
+                setPaleColor(getColor(R.color.lime_pale));
+                break;
+            case 128:setPrimaryColor(getColor(R.color.piss));
+                setPaleColor(getColor(R.color.piss_pale));
+                break;
+            case 256:setPrimaryColor(getColor(R.color.yellow));
+                setPaleColor(getColor(R.color.yellow_pale));
+                break;
+            case 512:setPrimaryColor(getColor(R.color.orange));
+                setPaleColor(getColor(R.color.orange_pale));
+                break;
+            case 1024:setPrimaryColor(getColor(R.color.pink));
+                setPaleColor(getColor(R.color.pink_pale));
+                break;
+            case 2048:setPrimaryColor(getColor(R.color.red));
+                setPaleColor(getColor(R.color.red_pale));
+                break;
+            default:setPrimaryColor(getColor(R.color.text_dark));
+                setPaleColor(getColor(R.color.white));
+        }
+        applyColor();
+    }
+    private void setPrimaryColor(int primaryColor) {
         this.primaryColor = primaryColor;
     }
-    public void setPaleColor(int paleColor) {
+    private void setPaleColor(int paleColor) {
         this.paleColor = paleColor;
     }
-
     private void applyColor(){
         gameTitle.setTextColor(primaryColor);
         gameTitle.setBackgroundColor(paleColor);
@@ -224,9 +239,14 @@ public class MainActivity extends AppCompatActivity {
         scoreDisplay.setTextColor(primaryColor);
         hiScoreLabel.setTextColor(primaryColor);
         hiScoreDisplay.setTextColor(primaryColor);
-        recyclerGrid.setBackgroundColor(paleColor);
+        grid.setBackgroundColor(paleColor);
         undoButton.setBackgroundColor(primaryColor);
         resetButton.setBackgroundColor(primaryColor);
+    }
+
+    //HELPER
+    private int dpToPx(float dp) {
+        return Math.round(dp * Resources.getSystem().getDisplayMetrics().density);
     }
 
 }

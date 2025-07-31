@@ -9,8 +9,10 @@ public class Tile {
     private int col;
     private int value;
 
+    private static long ID_COUNTER = 0;
+
     public Tile(int row, int col, int value) {
-        this.id = row * 4 + col;
+        this.id = ID_COUNTER++;
         this.row = row;
         this.col = col;
         this.value = value;
@@ -43,7 +45,7 @@ public class Tile {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Tile tile = (Tile) o;
-        return id == tile.id && value == tile.value;
+        return id == tile.id && row == tile.row && col == tile.col && value == tile.value;
     }
 
     @Override
