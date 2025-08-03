@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -33,20 +34,22 @@ public class MainActivity extends AppCompatActivity {
     private Button undoButton;
     private Button resetButton;
     private FrameLayout grid;
-
-    private int primaryColor;
-    private int paleColor;
-    private int maxTileOnBoard;
-
     private Button gameTitle;
     private TextView scoreLabel;
     private TextView hiScoreLabel;
     private View divider;
 
-    //UI LOGIC
+    //COMMON REFERENCES
+    private int primaryColor;
+    private int paleColor;
+    private int maxTileOnBoard;
+    private List<Tile>  previousGrid;
+
+    //UI LOGIC INSTANCES
     private Manager manager;
     private GestureDetector gestureDetector;
 
+    //CONSTANTS
     private final int screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
     private final int tileSize = (screenWidth - dpToPx(32)) /4;
     private static final String TAG = "grid/gridTiles";//DEBUG TAG
@@ -165,17 +168,19 @@ public class MainActivity extends AppCompatActivity {
     private void updateGrid(List<Tile> tiles){
         grid.removeAllViews();
 
-        int i=0;
         for (Tile currentTile : tiles){
             TileView currentTileView = new TileView(this);
-            currentTileView.setValue(currentTile.getValue());
+            currentTileView.setValue(currentTile.getValue(), this);
+
             FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(tileSize,tileSize);
             layoutParams.leftMargin = currentTile.getCol() * tileSize;
             layoutParams.topMargin = currentTile.getRow() * tileSize;
 
             grid.addView(currentTileView,layoutParams);
-            Log.d(TAG, grid.getChildAt(i++).toString());
         }
+    }
+    private void animateChanges(List<Tile> newTiles){
+
     }
 
     //COLORING

@@ -3,7 +3,6 @@
     <style name="Base.Theme.RMA_2_anis_karic" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
-        <item name="backgroundColor">@color/white</item>
     </style>
 
     <style name="Theme.RMA_2_anis_karic" parent="Base.Theme.RMA_2_anis_karic" />
