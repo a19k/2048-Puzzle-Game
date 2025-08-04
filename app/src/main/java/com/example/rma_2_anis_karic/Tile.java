@@ -40,17 +40,14 @@ public class Tile {
         this.value = value;
     }
 
+    public static void resetID_COUNTER() { ID_COUNTER = 0; }
+
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Tile tile = (Tile) o;
         return id == tile.id && row == tile.row && col == tile.col && value == tile.value;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, row, col, value);
     }
 
     @Override

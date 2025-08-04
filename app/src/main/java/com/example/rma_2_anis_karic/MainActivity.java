@@ -1,15 +1,14 @@
 package com.example.rma_2_anis_karic;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -21,8 +20,6 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
@@ -43,15 +40,16 @@ public class MainActivity extends AppCompatActivity {
     private int primaryColor;
     private int paleColor;
     private int maxTileOnBoard;
-    private List<Tile>  previousGrid;
 
     //UI LOGIC INSTANCES
     private Manager manager;
     private GestureDetector gestureDetector;
+    private TileViewManager tileViewManager;
 
     //CONSTANTS
     private final int screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
-    private final int tileSize = (screenWidth - dpToPx(32)) /4;
+    private final int tileSize = (screenWidth - dpToPx(56)) /4; // 2 * 16(padding) + 3 * 8(gap), 4 tiles
+    private final int tileMargin = dpToPx(8);
     private static final String TAG = "grid/gridTiles";//DEBUG TAG
 
 
@@ -67,16 +65,18 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-
         setUpViewReferences();
 
         setPrimaryColor(getColor(R.color.purple));
         setPaleColor(getColor(R.color.purple_pale));
         applyColor();
 
-
         //VIEWMODEL
         manager = new ViewModelProvider(this).get(Manager.class);
+
+        //TILE VIEW MANAGER
+        tileViewManager = new TileViewManager(findViewById(R.id.grid), this, tileSize, tileMargin);
+        Tile.resetID_COUNTER();
 
         //GESTURE DETECTOR
         gestureDetector = new GestureDetector(this, new SwipeListener() {
@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
         manager.getTiles().observe(this, new Observer<List<Tile>>() {
             @Override
             public void onChanged(List<Tile> tiles) {
-                updateGrid(tiles);
+                tileViewManager.updateGrid(tiles);
                 colorizeUI(tiles);
             }
         });
@@ -119,7 +119,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
         //VIEW LISTENERS
         gameTitle.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -127,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, SplashActivity.class);
                 startActivity(intent);
                 // Optional: finish() MainActivity if you don't want to return to it
-                // finish();
+                finish();
             }
         });
         resetButton.setOnClickListener(new View.OnClickListener() {
@@ -162,25 +161,6 @@ public class MainActivity extends AppCompatActivity {
         scoreLabel = (TextView) findViewById(R.id.scoreLabel);
         hiScoreLabel = (TextView) findViewById(R.id.hiscoreLabel);
         divider = findViewById(R.id.divider);
-    }
-
-    //UPDATE
-    private void updateGrid(List<Tile> tiles){
-        grid.removeAllViews();
-
-        for (Tile currentTile : tiles){
-            TileView currentTileView = new TileView(this);
-            currentTileView.setValue(currentTile.getValue(), this);
-
-            FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(tileSize,tileSize);
-            layoutParams.leftMargin = currentTile.getCol() * tileSize;
-            layoutParams.topMargin = currentTile.getRow() * tileSize;
-
-            grid.addView(currentTileView,layoutParams);
-        }
-    }
-    private void animateChanges(List<Tile> newTiles){
-
     }
 
     //COLORING

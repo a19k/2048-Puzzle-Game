@@ -49,7 +49,10 @@ public class Board {
 
         scoreSave = previousScore;
         hiScoreSave = previousHiScore;
-        saveState = copyGrid(previousGridImage);
+
+        for (int i = 0; i < 4; i++)
+            for (int j = 0; j < 4; j++)
+                saveState.get(i).get(j).setValue( previousGridImage.get(i).get(j).getValue() );
     }
     public List<List<Tile>> getSaveState() {
         return saveState;
@@ -59,7 +62,7 @@ public class Board {
         hiScore = hiScoreSave;
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
-                grid.get(i).set(j, saveState.get(i).get(j));
+                grid.get(i).get(j).setValue(saveState.get(i).get(j).getValue());
             }
         }
     }
