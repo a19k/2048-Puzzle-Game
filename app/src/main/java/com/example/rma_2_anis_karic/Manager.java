@@ -1,10 +1,12 @@
 package com.example.rma_2_anis_karic;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class Manager extends ViewModel {
@@ -12,7 +14,7 @@ public class Manager extends ViewModel {
     private static final String TAG = "MANAGER";//DEBUG TAG
     private final Board board = new Board();
 
-    private final MutableLiveData<List<Tile>> liveTiles = new MutableLiveData<>();
+    private final MutableLiveData<HashMap<Long, Tile>> liveTiles = new MutableLiveData<HashMap<Long, Tile>>();
     private final MutableLiveData<Integer> liveScore = new MutableLiveData<>();
     private final MutableLiveData<Integer> liveHiScore = new MutableLiveData<>();
 
@@ -21,7 +23,7 @@ public class Manager extends ViewModel {
     }//CONSTRUCTOR
 
     //LIVEDATA GET
-    public LiveData<List<Tile>> getTiles() {
+    public LiveData<HashMap<Long, Tile>> getTiles() {
         return liveTiles;
     }
     public LiveData<Integer> getScore() {
@@ -97,16 +99,18 @@ public class Manager extends ViewModel {
 
     //DATA STRUCTURE CONVERTER
     private void updateTiles() {
-        List<List<Tile>> grid = board.getGridImage();
-        List<Tile> tiles = new ArrayList<>();
+        HashMap<Long, Tile> tiles = new HashMap<>();
+
 
         for (int row = 0; row < 4; row++) {
             for (int col = 0; col < 4; col++) {
-                Tile currentTile = grid.get(row).get(col);
-                tiles.add(new Tile(row, col, currentTile.getValue()));
+                Tile currentTile = board.getGrid().get(row).get(col);
+                tiles.put(currentTile.getId() ,currentTile);
             }
         }
         liveTiles.setValue(tiles);
+
+        Log.d(TAG, board.toString());
     }
 
 }

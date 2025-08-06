@@ -7,8 +7,6 @@ import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationSet;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -21,6 +19,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -99,9 +98,9 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //LIVEDATA OBSERVERS
-        manager.getTiles().observe(this, new Observer<List<Tile>>() {
+        manager.getTiles().observe(this, new Observer<HashMap<Long, Tile>>() {
             @Override
-            public void onChanged(List<Tile> tiles) {
+            public void onChanged(HashMap<Long, Tile> tiles) {
                 tileViewManager.updateGrid(tiles);
                 colorizeUI(tiles);
             }
@@ -164,9 +163,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //COLORING
-    private void colorizeUI(List<Tile> tiles){
+    private void colorizeUI(HashMap<Long, Tile> tiles){
         int currentMax = 0;
-        for (Tile tile : tiles){
+        for (Tile tile : tiles.values()){
             if (tile.getValue() > currentMax) currentMax = tile.getValue();
         }
         maxTileOnBoard = currentMax;

@@ -97,12 +97,10 @@ public class Board {
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++)
                 if (grid.get(i).get(j).getValue() == 0) {
-                    if (emptyTileCounter == tileOfChoice) grid.get(i).get(j).setValue(tileValue);
+                    if (emptyTileCounter == tileOfChoice) grid.get(i).set(j, new Tile(i, j, tileValue));
                     emptyTileCounter++;
                 }
         }
-
-        Log.d(TAG, this.toString());
 
         return 0;
     }
@@ -128,8 +126,8 @@ public class Board {
             //apply the change
             grid.set(rowIndex, rowValues);
         }
+        updatePosition();
         setSaveState(gridImage,score,hiscore);
-        Log.d(TAG, toString());
     }
     public void moveRight() {
         List<List<Tile>> gridImage = getGridImage();
@@ -145,6 +143,8 @@ public class Board {
             //if there is no, go to next row
             if (rowValues.size() == 0) continue;
 
+            Log.d(TAG, rowValues.toString());
+
             //reverse the tile order
             rowValues = reverse(rowValues);
 
@@ -157,8 +157,8 @@ public class Board {
             //applies the change
             grid.set(rowIndex, rowValues);
         }
+        updatePosition();
         setSaveState(gridImage,score,hiscore);
-        Log.d(TAG, toString());
     }
     public void moveUp() {
         List<List<Tile>> gridImage = getGridImage();
@@ -182,9 +182,8 @@ public class Board {
 
         }
         //update row and column fields
+        updatePosition();
         setSaveState(gridImage,score,hiscore);
-
-        Log.d(TAG, toString());
     }
     public void moveDown() {
         List<List<Tile>> gridImage = getGridImage();
@@ -212,8 +211,8 @@ public class Board {
             //applies the change
             setColumn(columnIndex, columnValues);
         }
+        updatePosition();
         setSaveState(gridImage,score,hiscore);
-        Log.d(TAG, toString());
     }
 
     //MOVE UTILITIES
@@ -230,6 +229,8 @@ public class Board {
                 current.setValue(0);
             }
         }
+        Log.d(TAG, tiles.toString());
+
         floatEmptyTilesToEnd(tiles);
 
     }
@@ -239,7 +240,7 @@ public class Board {
         for (int i = 0; i < normal.size(); i++)
             reverse.add(normal.get(normal.size()-1-i));
 
-
+        Log.d(TAG, reverse.toString());
         return reverse;
     }
     private void floatEmptyTilesToEnd(List<Tile> tiles){
@@ -252,6 +253,14 @@ public class Board {
             }
             else i++;
         }
+        Log.d(TAG, tiles.toString());
+    }
+    private void updatePosition(){
+        for (int row = 0; row < 4; row++)
+            for (int col = 0; col < 4; col++){
+                grid.get(row).get(col).setRow(row);
+                grid.get(row).get(col).setCol(col);
+            }
     }
 
     //COLUMN SHORTCUTS
