@@ -219,14 +219,15 @@ public class Board {
     private void merge(List<Tile> tiles) {
         floatEmptyTilesToEnd(tiles);
 
-        for (int i = 1; i < tiles.size(); i++) {
+        for (int i = 0; i < tiles.size() - 1; i++) {
             Tile current = tiles.get(i);
-            Tile previous = tiles.get(i - 1);
+            Tile next = tiles.get(i + 1);
 
-            if (current.getValue() != 0  && previous.getValue() == current.getValue()) {
-                previous.setValue(previous.getValue() * 2);
-                addScore(previous.getValue());
+            if (current.getValue() != 0  && next.getValue() == current.getValue()) {
+                next.setValue(current.getValue() + next.getValue());
+                addScore(current.getValue());
                 current.setValue(0);
+                i++;
             }
         }
         Log.d(TAG, tiles.toString());

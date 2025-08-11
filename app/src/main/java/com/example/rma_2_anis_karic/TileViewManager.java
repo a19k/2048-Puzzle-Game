@@ -10,7 +10,9 @@ import android.widget.TextView;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class TileViewManager {
     private final FrameLayout grid;
@@ -18,7 +20,6 @@ public class TileViewManager {
     private final int tileSize;
     private final int tileMargin;
     private final HashMap<Long, View> activeViews = new HashMap<>();
-    private HashMap<Long, Tile> oldState = new HashMap<>();
 
     public TileViewManager(FrameLayout grid, Context context, int tileSize, int tileMargin) {
         this.grid = grid;
@@ -28,34 +29,48 @@ public class TileViewManager {
     }
 
     public void updateGrid(HashMap<Long, Tile> newState){
+        List<Tile> newTiles = new ArrayList<>();
+        List<Tile> emptyTiles = new ArrayList<>();
 
-        if (!oldState.isEmpty())
-            for (Long id : activeViews.keySet())
-                if (!oldState.containsKey(id)){
-                    View view = activeViews.get(id);
-                    grid.removeView(view);
-                }
+        for (Long id : activeViews.keySet())
+            if (!newState.containsKey(id)){
+                View view = activeViews.get(id);
+                grid.removeView(view);
+            }
 
-        activeViews.keySet().retainAll(oldState.keySet());
+        activeViews.keySet().retainAll(newState.keySet());
 
         for (Tile tile : newState.values()){
             View view = activeViews.get(tile.getId());
 
             Log.d("tvman", String.valueOf(view));
             if (view == null){
-                view = createTileView(tile);
-                grid.addView(view);
-                activeViews.put(tile.getId(),view);
-                if (tile.getValue() > 0) animateSpawn(view);
-            }
-            else {
+                newTiles.add(tile);
+            } else if (tile.getValue() == 0) {
+                emptyTiles.add(tile);
+            } else {
                 updateTileView(view,tile);
                 animateMove(view,tile);
             }
         }
 
-        //save grid state for next time
-        oldState = newState;
+        for (Tile tile : newTiles){
+            View view = createTileView(tile);
+            grid.addView(view);
+            activeViews.put(tile.getId(),view);
+            if (tile.getValue() > 0) animateSpawn(view);
+        }
+
+        for (Tile tile : emptyTiles){
+            View view = activeViews.get(tile.getId());
+            grid.removeView(view);
+            activeViews.remove(tile.getId());
+            view = createTileView(tile);
+            grid.addView(view);
+        }
+
+        newTiles.clear();
+        emptyTiles.clear();
     }
 
     private View createTileView(Tile tile) {
@@ -63,10 +78,12 @@ public class TileViewManager {
         updateTileView(view, tile);
 
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(tileSize, tileSize);
+        view.setLayoutParams(layoutParams);
         view.setX(tile.getCol() * (tileSize + tileMargin));
         view.setY(tile.getRow() * (tileSize + tileMargin));
-        view.setLayoutParams(layoutParams);
         view.setTag(tile.getId());
+
+        if (tile.getValue() != 0) view.setElevation(1f);
 
         return view;
     }
@@ -131,10 +148,11 @@ public class TileViewManager {
         view.setScaleY(0f);
         view.animate().scaleX(1f).scaleY(1f).setDuration(150).start();
     }
-
     private void animateMove(View view, Tile tile){
         float targetX = tile.getCol() * (tileSize + tileMargin);
         float targetY = tile.getRow() * (tileSize + tileMargin);
+
+        view.setElevation(2f);
 
         view.animate().translationX(targetX).translationY(targetY).setDuration(150).start();
     }
