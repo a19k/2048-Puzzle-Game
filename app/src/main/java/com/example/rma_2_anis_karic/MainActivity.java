@@ -38,7 +38,6 @@ public class MainActivity extends AppCompatActivity {
     //COMMON REFERENCES
     private int primaryColor;
     private int paleColor;
-    private int maxTileOnBoard;
 
     //UI LOGIC INSTANCES
     private Manager manager;
@@ -66,18 +65,15 @@ public class MainActivity extends AppCompatActivity {
 
         setUpViewReferences();
 
-        setPrimaryColor(getColor(R.color.purple));
-        setPaleColor(getColor(R.color.purple_pale));
-        applyColor();
-
         //VIEWMODEL
         manager = new ViewModelProvider(this).get(Manager.class);
 
         //TILE VIEW MANAGER
         tileViewManager = new TileViewManager(findViewById(R.id.grid), this, tileSize, tileMargin);
-        Tile.resetID_COUNTER();
+        Tile.resetID_COUNTER();// reset id counter every time main activity is reinstantiated
 
         //GESTURE DETECTOR
+        //on swipe detected, call apropriate handler from viewmodel
         gestureDetector = new GestureDetector(this, new SwipeListener() {
             @Override
             protected void onSwipeRight() {
@@ -98,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //LIVEDATA OBSERVERS
+        //observes the change in grid, score or hiscore and reacts to update ui
         manager.getTiles().observe(this, new Observer<HashMap<Long, Tile>>() {
             @Override
             public void onChanged(HashMap<Long, Tile> tiles) {
@@ -124,28 +121,26 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, SplashActivity.class);
                 startActivity(intent);
-                // Optional: finish() MainActivity if you don't want to return to it
-                finish();
             }
-        });
+        }); // back to splashscreen
         resetButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 manager.newGame();
             }
-        });
+        }); //reset
         undoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 manager.undo();
             }
-        });
+        }); // undo
         grid.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 return gestureDetector.onTouchEvent(event);
             }
-        });
+        }); // initiate gesture recognition
     }
 
     //SETUP
@@ -163,12 +158,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //COLORING
+    //selects the theme color based on grid state and applies it to secondary ui elements such as textViews,buttons
+    //doesn't color the grid
     private void colorizeUI(HashMap<Long, Tile> tiles){
         int currentMax = 0;
         for (Tile tile : tiles.values()){
             if (tile.getValue() > currentMax) currentMax = tile.getValue();
         }
-        maxTileOnBoard = currentMax;
 
         switch (currentMax){
             case 2:setPrimaryColor(getColor(R.color.purple));
@@ -229,6 +225,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //HELPER
+    //dp is device dependent, px for precision
     private int dpToPx(float dp) {
         return Math.round(dp * Resources.getSystem().getDisplayMetrics().density);
     }

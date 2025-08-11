@@ -1,7 +1,6 @@
 package com.example.rma_2_anis_karic;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -15,11 +14,11 @@ import java.util.HashMap;
 import java.util.List;
 
 public class TileViewManager {
-    private final FrameLayout grid;
-    private final Context context;
-    private final int tileSize;
-    private final int tileMargin;
-    private final HashMap<Long, View> activeViews = new HashMap<>();
+    private final FrameLayout grid; //view container, passed from mainactivity
+    private final Context context; // context for layout inflation, mainactivity
+    private final int tileSize; // size of tile, calculated per device
+    private final int tileMargin; // size of tile margin, calculated per device
+    private final HashMap<Long, View> activeViews = new HashMap<>(); // active views on grid, for easier data manipulation
 
     public TileViewManager(FrameLayout grid, Context context, int tileSize, int tileMargin) {
         this.grid = grid;
@@ -28,32 +27,38 @@ public class TileViewManager {
         this.tileMargin = tileMargin;
     }
 
+    //UPDATE CALL, once after every move
     public void updateGrid(HashMap<Long, Tile> newState){
-        List<Tile> newTiles = new ArrayList<>();
-        List<Tile> emptyTiles = new ArrayList<>();
+        List<Tile> newTiles = new ArrayList<>(); //new tiles found in newState
+        List<Tile> emptyTiles = new ArrayList<>();// zero value, empty tiles in newState
 
+        //remove tiles not supposed to be on grid(UI)
         for (Long id : activeViews.keySet())
             if (!newState.containsKey(id)){
                 View view = activeViews.get(id);
                 grid.removeView(view);
             }
 
+        //and remove them from activeViews
         activeViews.keySet().retainAll(newState.keySet());
 
+                                    //classify tiles
         for (Tile tile : newState.values()){
             View view = activeViews.get(tile.getId());
 
-            Log.d("tvman", String.valueOf(view));
             if (view == null){
-                newTiles.add(tile);
-            } else if (tile.getValue() == 0) {
-                emptyTiles.add(tile);
-            } else {
+                newTiles.add(tile);                 //postpone new tile rendering
+            }
+            else if (tile.getValue() == 0) {
+                emptyTiles.add(tile);               //postpone empty tile rendering
+            }
+            else {                                  //non-empty older tiles get render and animation priority because they slide
                 updateTileView(view,tile);
                 animateMove(view,tile);
             }
         }
 
+        //create and animate new tiles
         for (Tile tile : newTiles){
             View view = createTileView(tile);
             grid.addView(view);
@@ -61,14 +66,20 @@ public class TileViewManager {
             if (tile.getValue() > 0) animateSpawn(view);
         }
 
+        //reposition old empty tiles, without animation (instantly)
         for (Tile tile : emptyTiles){
             View view = activeViews.get(tile.getId());
             grid.removeView(view);
             activeViews.remove(tile.getId());
             view = createTileView(tile);
             grid.addView(view);
+            activeViews.put(tile.getId(),view);
+            //here views are deleted and then recreated
+            //when old view is reused, for some reason the layout is disrupted, causing the empty tiles to be offset to top-left
+            //possibly because the FrameLayout(grid or container)' s padding is being ignored when resetting the x and y coordinates of the view
         }
 
+        //sterilize the containers for next time
         newTiles.clear();
         emptyTiles.clear();
     }
@@ -77,12 +88,14 @@ public class TileViewManager {
         View view = LayoutInflater.from(context).inflate(R.layout.tile, grid, false);
         updateTileView(view, tile);
 
+        //define view dimensions, position
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(tileSize, tileSize);
         view.setLayoutParams(layoutParams);
         view.setX(tile.getCol() * (tileSize + tileMargin));
         view.setY(tile.getRow() * (tileSize + tileMargin));
         view.setTag(tile.getId());
 
+        //non-empty tiles should always be above
         if (tile.getValue() != 0) view.setElevation(1f);
 
         return view;
@@ -98,6 +111,8 @@ public class TileViewManager {
 
         card.setCardBackgroundColor(getTileColor(tile.getValue(), context));
     }
+
+    //get color based on tile value
     private int getTileColor(int tileValue, Context context) {
         int colorResId;
         switch (tileValue) {
@@ -149,11 +164,21 @@ public class TileViewManager {
         view.animate().scaleX(1f).scaleY(1f).setDuration(150).start();
     }
     private void animateMove(View view, Tile tile){
+        //target position
         float targetX = tile.getCol() * (tileSize + tileMargin);
         float targetY = tile.getRow() * (tileSize + tileMargin);
 
-        view.setElevation(2f);
-
-        view.animate().translationX(targetX).translationY(targetY).setDuration(150).start();
+        //move view to target position with temporary elevation so it stays above other tiles while moving
+        view.animate().translationX(targetX).translationY(targetY).setDuration(150).withStartAction(new Runnable() {
+            @Override
+            public void run() {
+                view.setElevation(2f);
+            }
+        }).withEndAction(new Runnable() {
+            @Override
+            public void run() {
+                view.setElevation(1f);
+            }
+        }).start();;
     }
 }

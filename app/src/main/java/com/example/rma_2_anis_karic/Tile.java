@@ -1,8 +1,6 @@
 package com.example.rma_2_anis_karic;
 
-import java.util.Objects;
-
-public class Tile {
+public class Tile {// data structure representing the tile
 
     private final long id;
     private int row;
@@ -42,13 +40,6 @@ public class Tile {
 
     public static void resetID_COUNTER() { ID_COUNTER = 0; }
 
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        Tile tile = (Tile) o;
-        return id == tile.id && row == tile.row && col == tile.col && value == tile.value;
-    }
 
     @Override
     public String toString() {
