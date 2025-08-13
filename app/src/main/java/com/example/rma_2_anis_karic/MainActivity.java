@@ -20,7 +20,6 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import java.util.HashMap;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -70,7 +69,15 @@ public class MainActivity extends AppCompatActivity {
 
         //TILE VIEW MANAGER
         tileViewManager = new TileViewManager(findViewById(R.id.grid), this, tileSize, tileMargin);
-        Tile.resetID_COUNTER();// reset id counter every time main activity is reinstantiated
+
+        //GAMESTATE
+        GameState gameState = manager.getGameState();
+        if (gameState == null) {
+            manager.newGame();
+        }
+        else {
+            manager.loadGameState(gameState);
+        }
 
         //GESTURE DETECTOR
         //on swipe detected, call apropriate handler from viewmodel

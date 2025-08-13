@@ -1,15 +1,21 @@
 package com.example.rma_2_anis_karic;
 
+import android.app.Application;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
+
+import com.google.gson.Gson;
 
 import java.util.HashMap;
 import java.util.List;
 
-public class Manager extends ViewModel {
+public class Manager extends AndroidViewModel {
 
     private static final String TAG = "MANAGER";//DEBUG TAG
     private final Board board = new Board();
@@ -18,8 +24,8 @@ public class Manager extends ViewModel {
     private final MutableLiveData<Integer> liveScore = new MutableLiveData<>();
     private final MutableLiveData<Integer> liveHiScore = new MutableLiveData<>();
 
-    public Manager() {
-        updateTiles();
+    public Manager(@NonNull Application application) {
+        super(application);
     }//CONSTRUCTOR
 
     //LIVEDATA GET
@@ -38,6 +44,9 @@ public class Manager extends ViewModel {
         board.clear();
         board.addNewTiles();
         board.addNewTiles();
+
+        SharedPreferences sharedPreferences = getApplication().getSharedPreferences("gameState", Context.MODE_PRIVATE);
+        sharedPreferences.edit().clear().apply();
 
         updateTiles();
         liveScore.setValue(board.getScore());
@@ -108,8 +117,31 @@ public class Manager extends ViewModel {
             }
         }
         liveTiles.setValue(tiles);
+        setGameState();
 
         Log.d(TAG, board.toString());
+    }
+
+    //STATE SAVING
+    public void setGameState(){
+        GameState fullState = board.createGameState();
+        SharedPreferences sharedPreferences = getApplication().getSharedPreferences("gameState", Context.MODE_PRIVATE);
+
+        sharedPreferences.edit().putString("fullState", new Gson().toJson(fullState)).apply();
+    }
+
+    public GameState getGameState(){
+        SharedPreferences sharedPreferences = getApplication().getSharedPreferences("gameState", Context.MODE_PRIVATE);
+
+        String json = sharedPreferences.getString("fullState",null);
+
+        if (json == null) return null;
+        else return new Gson().fromJson(json, GameState.class);
+    }
+
+    public void loadGameState(GameState gameState){
+        board.restoreGameState(gameState);
+        updateTiles();
     }
 
 }

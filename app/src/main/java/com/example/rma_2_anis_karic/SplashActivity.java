@@ -32,6 +32,7 @@ public class SplashActivity extends AppCompatActivity {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    mainView.setOnTouchListener(null);
                     funnyTile.animate().
                             scaleX(1.1f).
                             scaleY(1.1f).
@@ -56,8 +57,8 @@ public class SplashActivity extends AppCompatActivity {
                                 }
                             })
                             .start();
-                    return true;
 
+                    return true;
                 }
                 return false;
             }

@@ -7,7 +7,7 @@ import java.util.List;
 
 public class Board {
 
-    private final List<List<Tile>> grid;
+    private List<List<Tile>> grid;
     private int score;
     private int hiScore = 0;
 
@@ -44,7 +44,7 @@ public class Board {
     }
 
     //SAVESTATE
-    private void setSaveState(List<List<Tile>> previousGridImage,int previousScore,int previousHiScore) {
+    public void setSaveState(List<List<Tile>> previousGridImage,int previousScore,int previousHiScore) {
         if (!gridChanged(previousGridImage)) return;
 
         scoreSave = previousScore;
@@ -53,9 +53,6 @@ public class Board {
         for (int i = 0; i < 4; i++)
             for (int j = 0; j < 4; j++)
                 saveState.get(i).get(j).setValue( previousGridImage.get(i).get(j).getValue() );
-    }
-    public List<List<Tile>> getSaveState() {
-        return saveState;
     }
     public void loadSaveState() {
         score = scoreSave;
@@ -67,22 +64,43 @@ public class Board {
         }
     }
 
+    //GAMESTATE
+    public GameState createGameState(){
+        return new GameState(grid,saveState,score,scoreSave,hiScore,hiScoreSave);
+    }
+    public void restoreGameState(GameState gameState){
+        for (int i = 0; i < 4; i++)
+            for (int j = 0; j < 4; j++){
+                grid.get(i).get(j).setValue(gameState.getCurrentState().get(i).get(j).getValue());
+                saveState.get(i).get(j).setValue(gameState.getPreviousState().get(i).get(j).getValue());
+            }
+
+        score = gameState.getCurrentScore();
+        scoreSave = gameState.getPreviousScore();
+        hiScore = gameState.getCurrentHiscore();
+        hiScoreSave = gameState.getPreviousHiscore();
+    }
+
     //VIEWMODEL COMMANDS
     public void clear() {
+        List<List<Tile>> previousGridImage = getGridImage();
+
         for (int i = 0; i < 4; i++)
-            for (int j = 0; j < 4; j++)
+            for (int j = 0; j < 4; j++){
                 grid.get(i).get(j).setValue(0);
+            }
 
         score = 0;
+        setSaveState(previousGridImage, score, hiScore);
     }
-    public int addNewTiles() {
+    public void addNewTiles() {
         //count empty tiles in grid
         int emptyTileCounter = 0;
         for (int i = 0; i < 4; i++)
             for (int j = 0; j < 4; j++)
                 if (grid.get(i).get(j).getValue() == 0) emptyTileCounter++;
 
-        if (emptyTileCounter == 0) return 1;
+        if (emptyTileCounter == 0) return;
 
         //choose random empty tile
         int tileOfChoice = ((int) (Math.random() * 100000)) % emptyTileCounter;
@@ -102,7 +120,6 @@ public class Board {
                 }
         }
 
-        return 0;
     }
 
     //MOVE
@@ -118,7 +135,7 @@ public class Board {
             List<Tile> rowValues = grid.get(rowIndex);
 
             //if there is no, go to next row
-            if (rowValues.size() == 0) continue;
+            if (rowValues.isEmpty()) continue;
 
             //otherwise, merge same values
             merge(rowValues);
@@ -141,7 +158,7 @@ public class Board {
             List<Tile> rowValues = grid.get(rowIndex);
 
             //if there is no, go to next row
-            if (rowValues.size() == 0) continue;
+            if (rowValues.isEmpty()) continue;
 
             Log.d(TAG, rowValues.toString());
 
@@ -172,7 +189,7 @@ public class Board {
             List<Tile> columnValues = getColumn(columnIndex);
 
             //if there is no, go to next row
-            if (columnValues.size() == 0) continue;
+            if (columnValues.isEmpty()) continue;
 
             //otherwise, merge same values
             merge(columnValues);
@@ -197,7 +214,7 @@ public class Board {
             List<Tile> columnValues = getColumn(columnIndex);
 
             //if there is no, go to next row
-            if (columnValues.size() == 0) continue;
+            if (columnValues.isEmpty()) continue;
 
             //reverse the tile order
             columnValues = reverse(columnValues);
