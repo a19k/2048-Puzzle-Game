@@ -58,15 +58,6 @@ public class Manager extends AndroidViewModel {
         board.clear();
         board.addNewTiles();
         board.addNewTiles();
-        board.addNewTiles();
-        board.addNewTiles();
-        board.addNewTiles();
-        board.addNewTiles(1024);
-        board.addNewTiles(512);
-        board.addNewTiles(256);
-        board.addNewTiles(128);
-        board.addNewTiles(32);
-        board.addNewTiles(64);
 
         SharedPreferences sharedPreferences = getApplication().getSharedPreferences("gameState", Context.MODE_PRIVATE);
         sharedPreferences.edit().clear().apply();
@@ -96,8 +87,6 @@ public class Manager extends AndroidViewModel {
         }
 
         updateTiles();
-        liveScore.setValue(board.getScore());
-        liveHiScore.setValue(board.getHiScore());
     }
     public void swipeLeftHandler() {
         if (isBlocked) return;
@@ -110,8 +99,6 @@ public class Manager extends AndroidViewModel {
         }
 
         updateTiles();
-        liveScore.setValue(board.getScore());
-        liveHiScore.setValue(board.getHiScore());
     }
     public void swipeUpHandler() {
         if (isBlocked) return;
@@ -124,8 +111,6 @@ public class Manager extends AndroidViewModel {
         }
 
         updateTiles();
-        liveScore.setValue(board.getScore());
-        liveHiScore.setValue(board.getHiScore());
     }
     public void swipeDownHandler() {
         if (isBlocked) return;
@@ -138,8 +123,6 @@ public class Manager extends AndroidViewModel {
         }
 
         updateTiles();
-        liveScore.setValue(board.getScore());
-        liveHiScore.setValue(board.getHiScore());
     }
 
     //DATA STRUCTURE CONVERTER
@@ -153,6 +136,8 @@ public class Manager extends AndroidViewModel {
             }
         }
         liveTiles.setValue(tiles);
+        liveScore.setValue(board.getScore());
+        liveHiScore.setValue(board.getHiScore());
         setGameState();
 
         Log.d(TAG, board.toString());
