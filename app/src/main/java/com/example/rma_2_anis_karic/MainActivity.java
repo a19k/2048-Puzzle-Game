@@ -12,6 +12,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -107,6 +108,17 @@ public class MainActivity extends AppCompatActivity {
             public void onChanged(HashMap<Long, Tile> tiles) {
                 tileViewManager.updateGrid(tiles);
                 colorizeUI(tiles);
+
+                int endCode = manager.checkGameEnd();
+                switch (endCode){
+                    case 0: break;
+                    case 1: manager.playWin();
+                            showWinDialog();
+                            break;
+                    case 2: manager.playLose();
+                            showLoseDialog();
+                            break;
+                }
             }
         });
         manager.getScore().observe(this, new Observer<Integer>() {
@@ -235,6 +247,30 @@ public class MainActivity extends AppCompatActivity {
     //dp is device dependent, px for precision
     private int dpToPx(float dp) {
         return Math.round(dp * Resources.getSystem().getDisplayMetrics().density);
+    }
+
+    private void showWinDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("You Won")
+                .setMessage("You reached 2048! New game?")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    manager.newGame();
+                })
+                .setNegativeButton("No, let me take a look",((dialog, which) -> {
+                    manager.blockGrid();
+                }))
+                .setCancelable(false)
+                .show();
+    }
+    private void showLoseDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Game Over")
+                .setMessage("No moves left!")
+                .setPositiveButton("Try Again", (dialog, which) -> {
+                    manager.newGame();
+                })
+                .setCancelable(false)
+                .show();
     }
 
 }

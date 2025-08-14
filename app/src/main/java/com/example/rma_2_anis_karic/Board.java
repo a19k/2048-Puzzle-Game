@@ -93,7 +93,12 @@ public class Board {
         score = 0;
         setSaveState(previousGridImage, score, hiScore);
     }
+
     public void addNewTiles() {
+        addNewTiles(-1);
+    }
+
+    public void addNewTiles(int value) {
         //count empty tiles in grid
         int emptyTileCounter = 0;
         for (int i = 0; i < 4; i++)
@@ -107,7 +112,8 @@ public class Board {
 
         //choose value randomly 2->90%, 4->10%
         int tileValue;
-        if (((int) (Math.random() * 10)) % 10 == 0) tileValue = 4;
+        if (value != -1) tileValue = value;
+        else if (((int) (Math.random() * 10)) % 10 == 0) tileValue = 4;
         else tileValue = 2;
 
         //find the chosen tile and assign the new value
@@ -332,6 +338,40 @@ public class Board {
 
         return blank;
     }//creates a new grid with new ids
+
+    //WIN-LOSE CHECKS
+    public boolean checkWin(){
+        for (List<Tile> row : grid)
+            for (Tile tile : row)
+                if (tile.getValue() == 2048) return true;
+
+        return false;
+    }
+    public boolean checkLose(){
+        for (List<Tile> row : grid)
+            for (Tile tile : row)
+                if (tile.getValue() == 0) return false;
+
+        for (int row = 0; row < grid.size(); row++){
+            for (int column = 0; column < grid.size() - 1; column++){
+            Tile current = grid.get(row).get(column);
+            Tile next = grid.get(row).get(column+1);
+
+            if (current.getValue() == next.getValue()) return false;
+            }
+        }
+
+        for (int row = 0; row < grid.size() - 1; row++){
+            for (int column = 0; column < grid.size(); column++){
+                Tile current = grid.get(row).get(column);
+                Tile next = grid.get(row + 1).get(column);
+
+                if (current.getValue() == next.getValue()) return false;
+            }
+        }
+
+        return true;
+    }
 
     @Override
     public String toString() {
