@@ -1,6 +1,8 @@
 package com.example.rma_2_anis_karic;
 
 import android.content.Intent;
+import android.media.AudioAttributes;
+import android.media.SoundPool;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
@@ -15,6 +17,11 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class SplashActivity extends AppCompatActivity {
 
+    private final AudioAttributes audioAttributes = new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_GAME).setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build();
+    private final SoundPool soundPool = new SoundPool.Builder().setMaxStreams(1).setAudioAttributes(audioAttributes).build();
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,6 +33,8 @@ public class SplashActivity extends AppCompatActivity {
             return insets;
         });
 
+        int soundClick = soundPool.load(this , R.raw.click, 1);
+
         CardView funnyTile = (CardView) findViewById(R.id.funnyTile);
         View mainView = findViewById(android.R.id.content);
         mainView.setOnTouchListener(new View.OnTouchListener() {
@@ -33,6 +42,7 @@ public class SplashActivity extends AppCompatActivity {
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     mainView.setOnTouchListener(null);
+                    soundPool.play(soundClick, 1f, 1f, 0, 0, 1);
                     funnyTile.animate().
                             scaleX(1.1f).
                             scaleY(1.1f).

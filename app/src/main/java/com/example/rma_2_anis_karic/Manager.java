@@ -3,6 +3,8 @@ package com.example.rma_2_anis_karic;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.media.AudioAttributes;
+import android.media.SoundPool;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -20,13 +22,21 @@ public class Manager extends AndroidViewModel {
     private static final String TAG = "MANAGER";//DEBUG TAG
     private final Board board = new Board();
 
+    //SOUND EFFECTS
+    private final AudioAttributes audioAttributes = new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_GAME).setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build();
+    private final SoundPool soundPool = new SoundPool.Builder().setMaxStreams(1).setAudioAttributes(audioAttributes).build();
+    private final int soundClick = soundPool.load(this.getApplication(), R.raw.click, 1);
+
+
+    //LIVE DATA
     private final MutableLiveData<HashMap<Long, Tile>> liveTiles = new MutableLiveData<HashMap<Long, Tile>>();
     private final MutableLiveData<Integer> liveScore = new MutableLiveData<>();
     private final MutableLiveData<Integer> liveHiScore = new MutableLiveData<>();
 
+    //CONSTRUCTOR
     public Manager(@NonNull Application application) {
         super(application);
-    }//CONSTRUCTOR
+    }
 
     //LIVEDATA GET
     public LiveData<HashMap<Long, Tile>> getTiles() {
@@ -65,8 +75,10 @@ public class Manager extends AndroidViewModel {
         List<List<Tile>> previousGridImage = board.getGridImage();
         board.moveRight();
 
-        if (board.gridChanged(previousGridImage))
+        if (board.gridChanged(previousGridImage)){
             board.addNewTiles();
+            soundPool.play(soundClick, 1f, 1f, 0, 0, 1);
+        }
 
         updateTiles();
         liveScore.setValue(board.getScore());
@@ -76,8 +88,10 @@ public class Manager extends AndroidViewModel {
         List<List<Tile>> previousGridImage = board.getGridImage();
         board.moveLeft();
 
-        if (board.gridChanged(previousGridImage))
+        if (board.gridChanged(previousGridImage)){
             board.addNewTiles();
+            soundPool.play(soundClick, 1f, 1f, 0, 0, 1);
+        }
 
         updateTiles();
         liveScore.setValue(board.getScore());
@@ -87,8 +101,10 @@ public class Manager extends AndroidViewModel {
         List<List<Tile>> previousGridImage = board.getGridImage();
         board.moveUp();
 
-        if (board.gridChanged(previousGridImage))
+        if (board.gridChanged(previousGridImage)){
             board.addNewTiles();
+            soundPool.play(soundClick, 1f, 1f, 0, 0, 1);
+        }
 
         updateTiles();
         liveScore.setValue(board.getScore());
@@ -98,8 +114,10 @@ public class Manager extends AndroidViewModel {
         List<List<Tile>> previousGridImage = board.getGridImage();
         board.moveDown();
 
-        if (board.gridChanged(previousGridImage))
+        if (board.gridChanged(previousGridImage)){
             board.addNewTiles();
+            soundPool.play(soundClick, 1f, 1f, 0, 0, 1);
+        }
 
         updateTiles();
         liveScore.setValue(board.getScore());
